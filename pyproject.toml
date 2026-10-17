@@ -1,0 +1,28 @@
+[project]
+name = "same-page"
+version = "0.1.0"
+description = "A removable review-comment layer for static HTML."
+authors = [{ name = "monasu0v0", email = "monasu0v0@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.9"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/monasu0v0/samepage"
+Repository = "https://github.com/monasu0v0/samepage"
+
+[project.scripts]
+samepage = "samepage.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["samepage*"]
+
+[tool.setuptools.package-data]
+samepage = ["assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

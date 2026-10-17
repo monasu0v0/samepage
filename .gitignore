@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+.playwright-mcp/
+build/
+dist/
+*.egg-info/
+.claude/
+.venv/
+*.sp-tmp
+# README*.html are generated from README*.md (docs/build_readme_html.py + cli.py)
+# but ARE tracked: the README links to them as the samepage-injected version.

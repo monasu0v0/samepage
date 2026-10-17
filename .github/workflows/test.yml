@@ -1,0 +1,94 @@
+name: test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: unit (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install pytest and markdown
+        run: python -m pip install --upgrade pip pytest markdown
+      - name: Run tests (browser tests skip without Playwright)
+        run: python -m pytest -q
+
+  browser:
+    name: browser (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pytest and Playwright
+        run: |
+          python -m pip install --upgrade pip pytest playwright
+          python -m playwright install --with-deps chromium
+      - name: Run browser tests
+        run: python -m pytest -q tests/test_browser.py
+
+  package:
+    name: package install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install the package and check the console script
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+          samepage --help
+
+  docs:
+    name: docs builders
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pytest and markdown
+        run: python -m pip install --upgrade pip pytest markdown
+      - name: Run alignment builder tests
+        run: python -m pytest -q tests/test_alignment_builder.py
+      - name: Rebuild the generated docs
+        run: |
+          python docs/build_readme_html.py README.md README.html
+          python docs/build_readme_html.py README.ja.md README.ja.html
+          python samepage/cli.py README.html --unit-selector body \
+            --label-format "Whole" --doc-id readme-en --no-source-path
+          python samepage/cli.py README.ja.html --unit-selector body \
+            --label-format "全体" --doc-id readme-ja --no-source-path
+          for md in docs/alignment/*.md; do
+            [ "$(basename "$md")" = "INDEX.md" ] && continue
+            python docs/build_alignment_html.py "$md"
+            python samepage/cli.py "${md%.md}.html" --finalize \
+              --out "${md%.md}.final.html"
+          done
+          python docs/build_alignment_html.py --index docs/alignment
+      - name: Fail if a generated file is out of date
+        run: |
+          if ! git diff --quiet; then
+            echo "::error::Generated files are stale. Rebuild them and commit the result:"
+            git diff --stat
+            git --no-pager diff
+            exit 1
+          fi
+          echo "All generated files are up to date."

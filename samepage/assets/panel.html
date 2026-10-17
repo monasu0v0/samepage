@@ -1,0 +1,52 @@
+<!-- samepage review layer UI -->
+<button id="spBadge" class="sp-badge" type="button" title="Open comment list (c key)">💬 0</button>
+
+<button id="spSelectBtn" class="sp-select-btn" type="button">💬 Comment</button>
+
+<div id="spPopup" class="sp-popup">
+  <div id="spPopupPalette" class="sp-popup-palette">
+    <button type="button" data-sp-action="move">Move</button>
+    <button type="button" data-sp-action="insert">Insert here</button>
+    <button type="button" data-sp-action="delete">Delete</button>
+    <button type="button" data-sp-action="shorten">Shorten</button>
+    <button type="button" data-sp-action="keep">Keep 👍</button>
+  </div>
+  <div id="spPopupGuide" class="sp-popup-guide"></div>
+  <div id="spPopupChips" class="sp-popup-chips"></div>
+  <textarea id="spPopupText" placeholder="Enter a comment"></textarea>
+  <div class="sp-popup-actions">
+    <button id="spPopupAddTarget" class="sp-popup-add" type="button" title="Select more text or click to add another target">+ Add target</button>
+    <button id="spPopupCancel" class="sp-popup-cancel" type="button">Cancel</button>
+    <button id="spPopupSave" class="sp-popup-save" type="button">Save</button>
+  </div>
+</div>
+
+<div id="spPanel" class="sp-panel">
+  <div class="sp-panel-header">
+    <span>Comments (<span id="spPanelCount">0</span>)</span>
+    <button id="spPanelClose" type="button" aria-label="Close">×</button>
+  </div>
+  <div class="sp-panel-json">
+    <button id="spJsonCopyDirect" class="sp-json-copy-direct" type="button" title="Copy the export JSON to the clipboard (j key)">📋 Copy JSON</button>
+    <button id="spJsonBtn" type="button" title="Show the export JSON in a dialog">👁 Show JSON</button>
+    <button id="spDocCommentBtn" type="button">📄 Whole-document comment</button>
+  </div>
+  <div id="spPanelQuestions" class="sp-panel-questions"></div>
+  <div id="spPanelList" class="sp-panel-list"></div>
+</div>
+
+<div id="spJsonModal" class="sp-json-modal">
+  <div class="sp-json-overlay"></div>
+  <div class="sp-json-box">
+    <div class="sp-json-hint">Copy this JSON and paste it to your AI agent (e.g. Antigravity, Claude Code).</div>
+    <textarea id="spJsonText" readonly></textarea>
+    <div class="sp-json-actions">
+      <button id="spJsonClose" class="sp-json-close" type="button">Close</button>
+      <button id="spJsonCopy" class="sp-json-copy" type="button">Copy</button>
+    </div>
+  </div>
+</div>
+
+<div id="spPickOutline" class="sp-pick-outline"></div>
+<div id="spPickLine" class="sp-pick-line"></div>
+<div id="spPickHint" class="sp-pick-hint">Click to select an element / near the top or bottom edge for an insertion point / ↑↓ for parent or child / Esc to cancel</div>
