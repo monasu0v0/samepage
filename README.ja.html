@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>samepage</title>
+<style>
+:root{
+  --sp-bg:#fbfdfc; --sp-fg:#1c2624; --sp-muted:#5b6c69;
+  --sp-accent:#0f766e; --sp-accent-dark:#0b5750; --sp-border:#d7e6e3;
+  --sp-card:#ffffff; --sp-code-bg:#1e293b; --sp-code-fg:#e2e8f0;
+  --sp-kbd-bg:#eef2f1; --sp-kbd-border:#c3d3d0; --sp-banner-bg:#eef7f5;
+  --sp-banner-fg:#0b5750;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--sp-bg); color:var(--sp-fg);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  line-height:1.65; font-size:16px;
+}
+a{color:var(--sp-accent-dark);}
+a:hover{color:var(--sp-accent);}
+.sp-banner{
+  background:var(--sp-banner-bg); color:var(--sp-banner-fg);
+  text-align:center; padding:.6rem 1rem; font-size:.85rem;
+  border-bottom:1px solid var(--sp-border);
+}
+.sp-shell{
+  max-width:1180px; margin:0 auto; padding:0 1.25rem 4rem;
+  display:flex; gap:2.5rem; align-items:flex-start;
+}
+.sp-main{ min-width:0; flex:1 1 auto; max-width:920px; }
+.sp-hero{ padding:2.5rem 0 1rem; }
+.sp-hero h1{ font-size:2.1rem; margin:0 0 .4rem; letter-spacing:-.01em; }
+.sp-hero p{ margin:.3rem 0; color:var(--sp-muted); }
+.sp-hero em{ font-style:italic; color:var(--sp-muted); }
+.sp-toc-desktop{
+  flex:0 0 240px; position:sticky; top:1.5rem;
+  align-self:flex-start; padding-top:2.5rem;
+}
+.sp-toc-mobile{ display:none; }
+.sp-toc-heading{
+  font-size:.8rem; text-transform:uppercase; letter-spacing:.06em;
+  color:var(--sp-muted); margin:0 0 .6rem; border:none;
+}
+.sp-toc-list{ list-style:none; margin:0; padding:0; }
+.sp-toc-list li{ margin:0; }
+.sp-toc-list a{
+  display:block; padding:.3rem 0; font-size:.9rem; text-decoration:none;
+  color:var(--sp-muted); border-left:2px solid transparent; padding-left:.6rem;
+}
+.sp-toc-list a:hover{ color:var(--sp-accent-dark); border-left-color:var(--sp-border); }
+.sp-article h2{
+  font-size:1.45rem; margin:3rem 0 1rem; padding-top:.5rem;
+  border-top:1px solid var(--sp-border);
+}
+.sp-article h1 + h2, .sp-article > h2:first-child{ border-top:none; }
+.sp-article h3{ font-size:1.15rem; margin:1.6rem 0 .6rem; }
+.sp-article p{ margin:.75rem 0; }
+.sp-article ul, .sp-article ol{ margin:.6rem 0; padding-left:1.4rem; }
+.sp-article li{ margin:.3rem 0; }
+.sp-article code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--sp-kbd-bg); border:1px solid var(--sp-kbd-border);
+  border-radius:4px; padding:.1rem .35rem; font-size:.88em;
+}
+.sp-article pre{
+  background:var(--sp-code-bg); color:var(--sp-code-fg);
+  border-radius:8px; padding:1rem 1.1rem; overflow-x:auto;
+  font-size:.88rem; line-height:1.55;
+}
+.sp-article pre code{
+  background:transparent; border:none; padding:0; color:inherit;
+  font-size:1em;
+}
+kbd{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--sp-kbd-bg); border:1px solid var(--sp-kbd-border);
+  border-bottom-width:2px; border-radius:5px; padding:.05rem .4rem;
+  font-size:.85em; box-shadow:0 1px 0 rgba(0,0,0,.04);
+}
+.table-wrap{ overflow-x:auto; margin:1rem 0; border:1px solid var(--sp-border);
+  border-radius:8px; }
+table{ border-collapse:collapse; width:100%; font-size:.92rem; }
+th,td{ padding:.55rem .8rem; border-bottom:1px solid var(--sp-border);
+  text-align:left; vertical-align:top; white-space:normal; }
+thead th{ background:#f1f8f6; color:var(--sp-accent-dark); font-weight:600; }
+td:first-child code, th:first-child code{
+  font-weight:600; color:var(--sp-accent-dark); background:transparent;
+  border:none; padding:0;
+}
+.sp-flow-wrap{ margin:1.2rem 0 1.6rem; }
+.sp-flow-svg{ display:block; max-width:100%; height:auto; }
+.sp-flow-svg [data-sp-node]{ cursor:default; }
+@media (max-width: 860px){
+  .sp-shell{ flex-direction:column; padding:0 1rem 3rem; }
+  .sp-toc-desktop{ display:none; }
+  .sp-toc-mobile{ display:block; margin:1.2rem 0 0; }
+  .sp-toc-mobile summary{
+    cursor:pointer; font-weight:600; color:var(--sp-accent-dark);
+    padding:.5rem 0;
+  }
+  .sp-toc-mobile .sp-toc-heading{ display:none; }
+  .sp-main{ max-width:100%; }
+}
+</style>
+</head>
+<body data-sp-unit="u1" data-sp-label="全体" data-sp-index="1">
+<div class="sp-banner">この HTML は README.ja.md から自動生成されています — 編集は元の .md に対して行い、再生成してください。</div>
+<div class="sp-shell">
+  <aside class="sp-toc-desktop"><p class="sp-toc-heading">目次</p><ul class="sp-toc-list"><li><a href="#_1">なぜ必要か</a></li><li><a href="#_2">これは何か</a></li><li><a href="#_3">動作の流れ</a></li><li><a href="#_4">他の手段との比較</a></li><li><a href="#readme">このREADME自体で試す</a></li><li><a href="#_5">クイックスタート</a></li><li><a href="#_6">動作要件</a></li><li><a href="#aiantigravity-claude-code">AIエージェントのスキルとして導入する（Antigravity / Claude Code / その他）</a></li><li><a href="#cli">CLI リファレンス</a></li><li><a href="#_7">ターゲットの種類</a></li><li><a href="#svg">ドキュメント生成側向け: SVG図をコメント対象にする</a></li><li><a href="#_8">プライバシーに関する注意</a></li><li><a href="#faq">FAQ</a></li><li><a href="#_9">開発</a></li><li><a href="#_10">コントリビューション</a></li><li><a href="#_11">クレジット</a></li><li><a href="#_12">ライセンス</a></li></ul></aside>
+  <main class="sp-main">
+    <header class="sp-hero"><h1 id="samepage">samepage</h1>
+<p><em>Get on the same page with your AI — literally.</em></p>
+<p><a href="README.md">English README is here</a></p>
+<p><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+<img alt="Python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-blue.svg" />
+<img alt="Zero runtime dependencies" src="https://img.shields.io/badge/runtime%20deps-none-brightgreen.svg" /></p>
+<p><img alt="samepage demo: comment on the rendered page, export JSON, get replies and question pins" src="docs/images/demo.gif" /></p>
+<p><em>テキストや要素を選んでコメントし、<kbd>j</kbd> を押すだけで、JSONがそのままエージェントに渡る。
+返信と質問ピンは同じページに戻ってくる。</em></p>
+<blockquote>
+<p>デモに登場する「Release notes」は、本リポジトリ用に書かれた架空のサンプル文書です
+（<code>docs/demo/</code> および <code>tests/fixtures/</code> 配下のHTMLも同様）。実在の製品・プロジェクト・
+組織を記述したものではありません。</p>
+</blockquote>
+</header>
+    <details class="sp-toc-mobile"><summary>目次を開く</summary><p class="sp-toc-heading">目次</p><ul class="sp-toc-list sp-toc-list-mobile"><li><a href="#_1">なぜ必要か</a></li><li><a href="#_2">これは何か</a></li><li><a href="#_3">動作の流れ</a></li><li><a href="#_4">他の手段との比較</a></li><li><a href="#readme">このREADME自体で試す</a></li><li><a href="#_5">クイックスタート</a></li><li><a href="#_6">動作要件</a></li><li><a href="#aiantigravity-claude-code">AIエージェントのスキルとして導入する（Antigravity / Claude Code / その他）</a></li><li><a href="#cli">CLI リファレンス</a></li><li><a href="#_7">ターゲットの種類</a></li><li><a href="#svg">ドキュメント生成側向け: SVG図をコメント対象にする</a></li><li><a href="#_8">プライバシーに関する注意</a></li><li><a href="#faq">FAQ</a></li><li><a href="#_9">開発</a></li><li><a href="#_10">コントリビューション</a></li><li><a href="#_11">クレジット</a></li><li><a href="#_12">ライセンス</a></li></ul></details>
+    <article class="sp-article"><h2 id="_1">なぜ必要か</h2>
+<p>AIがHTML成果物を作った場合でも、レビューは結局チャット上で場所を説明して直してもらう形に
+なりがちです。samepageは、人が表示されたページに直接コメントできるようにし、AIには構造化JSON
+を渡して<strong>原本</strong>（HTMLが生成物なら生成元）を直させ、返信とAI自身の質問を同じページに書き戻します。
+合意が取れたら、レビュー層を除いたクリーンな公開用HTMLを書き出します。</p>
+<h2 id="_2">これは何か</h2>
+<p>samepage は、人とAIエージェントが同じHTMLドキュメントを見ながら意見をすり合わせるための、
+後付け・着脱可能なレビュー層です。「AIが作って人が読むだけ」の一方通行ではなく、レビューを
+往復にします。人はブラウザ上で表示されたページに直接コメントを書き、AIはそのフィードバックを
+構造化JSONとして受け取り、<strong>原本</strong>に反映します。HTML自体が原本（手書きで、生成元を持たない）
+なら、そのHTMLを直接直します。HTMLがMarkdownやMarp、intent-docのIRなどから生成された
+成果物なら、生成元を直してHTMLを再生成します。HTMLだけを直しても次の再生成で消えるためです。
+いずれの場合も、反映後に何をしたかを書き戻します。判断に迷う点があれば、AI側から人への逆質問を
+同じページ上のピンとして立てることもできます。この往復は合意が取れるまで続き、合意後にレビュー層
+を取り除いた、公開用のクリーンなHTMLを書き出します。</p>
+<p>任意の静的HTMLに対して動作し、サーバー不要（すべて <code>file://</code> で完結）、実行時の追加依存も
+ありません。人側に必要なのはブラウザとクリップボードだけです。</p>
+<h2 id="_3">動作の流れ</h2>
+<div class="sp-flow-wrap"><svg class="sp-flow-svg" viewBox="0 0 980 400" width="100%"
+     xmlns="http://www.w3.org/2000/svg" role="img" aria-label="flow diagram">
+  <defs>
+    <marker id="sp-arrow" viewBox="0 0 10 10" refX="8" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/>
+    </marker>
+    <marker id="sp-arrow-amber" viewBox="0 0 10 10" refX="8" refY="5"
+            markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b5790c"/>
+    </marker>
+  </defs>
+  <g data-sp-node="edge-comment-to-agent" data-sp-label="コメントJSON → j"><line x1="165" y1="75.0" x2="275" y2="75.0" stroke="transparent" stroke-width="14"/><line x1="165" y1="75.0" x2="275" y2="75.0" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-arrow)"/><text x="220.0" y="59.0" text-anchor="middle" font-size="11" fill="#3a5a57" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" paint-order="stroke" stroke="#fbfdfc" stroke-width="4" stroke-linejoin="round">コメントJSON → j</text></g><g data-sp-node="edge-agent-to-fix" data-sp-label="反映"><line x1="425" y1="75.0" x2="535" y2="75.0" stroke="transparent" stroke-width="14"/><line x1="425" y1="75.0" x2="535" y2="75.0" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-arrow)"/><text x="480.0" y="59.0" text-anchor="middle" font-size="11" fill="#3a5a57" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" paint-order="stroke" stroke="#fbfdfc" stroke-width="4" stroke-linejoin="round">反映</text></g><g data-sp-node="edge-fix-to-regen" data-sp-label="再生成"><line x1="685" y1="75.0" x2="795" y2="75.0" stroke="transparent" stroke-width="14"/><line x1="685" y1="75.0" x2="795" y2="75.0" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-arrow)"/><text x="740.0" y="59.0" text-anchor="middle" font-size="11" fill="#3a5a57" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" paint-order="stroke" stroke="#fbfdfc" stroke-width="4" stroke-linejoin="round">再生成</text></g><g data-sp-node="edge-regen-to-review" data-sp-label="--responses / --questions"><line x1="870.0" y1="110" x2="870.0" y2="300" stroke="transparent" stroke-width="14"/><line x1="870.0" y1="110" x2="870.0" y2="300" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-arrow)"/><text x="862.0" y="205.0" text-anchor="end" font-size="11" fill="#3a5a57" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" paint-order="stroke" stroke="#fbfdfc" stroke-width="4" stroke-linejoin="round">--responses / --questions</text></g><g data-sp-node="edge-review-to-agree" data-sp-label="解決 or 追加コメント"><line x1="795" y1="335.0" x2="445" y2="335" stroke="transparent" stroke-width="14"/><line x1="795" y1="335.0" x2="445" y2="335" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-arrow)"/><text x="620.0" y="319.0" text-anchor="middle" font-size="11" fill="#3a5a57" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" paint-order="stroke" stroke="#fbfdfc" stroke-width="4" stroke-linejoin="round">解決 or 追加コメント</text></g><g data-sp-node="edge-agree-to-finalize" data-sp-label="できた"><line x1="255" y1="335" x2="165" y2="335.0" stroke="transparent" stroke-width="14"/><line x1="255" y1="335" x2="165" y2="335.0" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-arrow)"/><text x="210.0" y="319.0" text-anchor="middle" font-size="11" fill="#3a5a57" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" paint-order="stroke" stroke="#fbfdfc" stroke-width="4" stroke-linejoin="round">できた</text></g><g data-sp-node="edge-agree-loop-back" data-sp-label="まだ"><path d="M 350 280 C 290 195, 70.0 200, 90.0 110" fill="none" stroke="transparent" stroke-width="16"/><path d="M 350 280 C 290 195, 70.0 200, 90.0 110" fill="none" stroke="#b5790c" stroke-width="2" marker-end="url(#sp-arrow-amber)" stroke-dasharray="6,4"/><text x="180.0" y="182.5" text-anchor="middle" font-size="11" fill="#b5790c" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" paint-order="stroke" stroke="#fbfdfc" stroke-width="4" stroke-linejoin="round">まだ</text></g>
+  <g data-sp-node="flow-human-comment" data-sp-label="人がコメント"><rect x="15" y="40" width="150" height="70" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-size="13" fill="#0f2a28" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="75.0"><tspan x="90.0" dy="0.0">人がコメント</tspan></text></g><g data-sp-node="flow-agent" data-sp-label="AIエージェント"><rect x="275" y="40" width="150" height="70" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-size="13" fill="#0f2a28" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="75.0"><tspan x="350.0" dy="0.0">AIエージェント</tspan></text></g><g data-sp-node="flow-fix-source" data-sp-label="原本を直す / （生成物なら生成元）"><rect x="535" y="40" width="150" height="70" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-size="13" fill="#0f2a28" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="75.0"><tspan x="610.0" dy="-9.0">原本を直す</tspan><tspan x="610.0" dy="18">（生成物なら生成元）</tspan></text></g><g data-sp-node="flow-regenerate" data-sp-label="HTML再生成"><rect x="795" y="40" width="150" height="70" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-size="13" fill="#0f2a28" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="75.0"><tspan x="870.0" dy="0.0">HTML再生成</tspan></text></g><g data-sp-node="flow-human-review" data-sp-label="人が返信・ / 質問ピンを見る"><rect x="795" y="300" width="150" height="70" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-size="13" fill="#0f2a28" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="335.0"><tspan x="870.0" dy="-9.0">人が返信・</tspan><tspan x="870.0" dy="18">質問ピンを見る</tspan></text></g><g data-sp-node="flow-agree" data-sp-label="合意できたか？"><polygon points="350,280 445,335 350,390 255,335" fill="#fdf3e0" stroke="#b5790c" stroke-width="2"/><text text-anchor="middle" font-size="12" fill="#5a3d05" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="335"><tspan x="350" dy="0.0">合意できたか？</tspan></text></g><g data-sp-node="flow-finalize" data-sp-label="--finalize で / 公開用HTML"><rect x="15" y="300" width="150" height="70" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-size="13" fill="#0f2a28" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="335.0"><tspan x="90.0" dy="-9.0">--finalize で</tspan><tspan x="90.0" dy="18">公開用HTML</tspan></text></g>
+</svg></div>
+<ul>
+<li><strong>人 → AI</strong>: コメント。文字列の範囲・要素そのもの・要素間の挿入位置・SVG図中のノード・文書
+  全体のいずれかに紐づけられる。1つの自己完結したJSONとして書き出し、そのままエージェントの
+  チャットに貼れる。</li>
+<li><strong>原本か生成物かの見分け方</strong>: 直す前に、<code>sourceHtml</code> の隣に同名の <code>.md</code> など生成元ファイルが
+  あるか、HTML内に「Generated from ...」といった印がないかを確認する。</li>
+<li><strong>AI → 人</strong>: 返信JSON（何を直した／見送った／そのままにしたか、その理由）。加えて、AI単独
+  では判断しきれない点があれば、ページ上に直接質問ピンを立てて人の判断を求められる。</li>
+<li><strong>合意 → finalize</strong>: 全コメントが解決済みになったら、<code>--finalize</code> でレビュー層と議論ブロック
+  を取り除いた別ファイルの公開用HTMLを書き出す。これが実際に配布・公開する側。</li>
+</ul>
+<h2 id="_4">他の手段との比較</h2>
+<p>samepageはこれらを置き換えるものではありません。人がレンダリング済みの成果物をレビューし、AI
+エージェントがそのレビュー結果を反映する必要がある場面のギャップを埋めるためのものです。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>samepage</th>
+<th>Google Docs / Notionのコメント</th>
+<th>GitHub PRレビュー</th>
+<th>Web注釈（Hypothesisなど）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>コメント対象</td>
+<td>任意の静的HTML、表示された状態そのまま</td>
+<td>そのサービス自身のドキュメント</td>
+<td>テキストの差分</td>
+<td>任意のWebページ</td>
+</tr>
+<tr>
+<td>サーバー・アカウント</td>
+<td>不要</td>
+<td>必要</td>
+<td>必要</td>
+<td>必要</td>
+</tr>
+<tr>
+<td>AIへのフィードバック伝達</td>
+<td>1つの自己完結したJSONをチャットに貼るだけ</td>
+<td>専用の連携がなければ手動コピー</td>
+<td>専用の連携がなければ手動コピー</td>
+<td>専用の連携がなければ手動コピー</td>
+</tr>
+<tr>
+<td>AI→人への質問</td>
+<td>同じページ上の質問ピン</td>
+<td>コメント返信</td>
+<td>コメント返信</td>
+<td>コメント返信</td>
+</tr>
+<tr>
+<td>修正の反映先</td>
+<td>原本（生成物なら生成元）</td>
+<td>ドキュメントそのもの</td>
+<td>ドキュメントそのもの</td>
+<td>—</td>
+</tr>
+<tr>
+<td>公開用出力</td>
+<td><code>--finalize</code> でレビュー層を除去</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="readme">このREADME自体で試す</h2>
+<p><a href="README.html"><code>README.html</code></a> は、このページをHTML化し、samepageのレビュー層をあらかじめ注入した
+ものです（このツールを、このツール自身のドキュメントに適用したもの）。日本語版は
+<a href="README.ja.html"><code>README.ja.html</code></a> です。</p>
+<pre><code class="language-bash">git clone https://github.com/monasu0v0/samepage.git
+cd samepage
+open README.ja.html   # または start / xdg-open。GitHubは.htmlをソース表示するのでローカルで開く
+</code></pre>
+<p>このREADMEの説明では足りない、あるいは自分の状況に合わせて書き直してほしい箇所があれば、
+そこに直接コメントしてください。該当箇所を選択して <kbd>a</kbd> キー、要望を書く
+（例:「コーディングエージェントを使ったことがない人向けに説明して」「この表を短くして」
+「Windowsでの例を追加して」）。<kbd>j</kbd> キーでJSONをコピーし、cloneしたディレクトリで動いている
+コーディングエージェントに貼れば、<code>README.ja.md</code>（および <code>README.md</code>）を書き換えて回答し、HTMLを再生成します。
+出来上がるのは、あなたが実際に抱いた疑問に沿って形を変えた、あなた専用のREADMEです。</p>
+<h2 id="_5">クイックスタート</h2>
+<pre><code class="language-bash">git clone https://github.com/monasu0v0/samepage.git
+cd samepage
+python3 samepage/cli.py your-doc.html --unit-selector body --label-format &quot;Whole&quot;
+open your-doc.html            # または: start / xdg-open
+</code></pre>
+<p>ブラウザ側での操作:</p>
+<ol>
+<li>テキストを選択して <kbd>a</kbd> キー（または💬ボタン）でコメントを追加。テキストの範囲ではなく
+   要素そのもの・挿入位置・図のノードを指したいときは <kbd>e</kbd> キーで要素選択モードに入る。</li>
+<li><kbd>c</kbd> キーでコメントパネルを開閉、<kbd>j</kbd> キー（またはパネルの「📋 Copy JSON」ボタン）で
+   書き出しJSONをクリップボードにコピー。</li>
+<li>そのJSONをコーディングエージェントのチャットに貼る。JSON自身が作業指示を内包しているため、
+   説明を書き添えなくてもそのまま反映作業が伝わる。</li>
+</ol>
+<h2 id="_6">動作要件</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>側</th>
+<th>必要なもの</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>注入する側（エージェント／開発者）</td>
+<td>Python 3.9以上 — サードパーティ製パッケージは不要</td>
+</tr>
+<tr>
+<td>レビューする側（人）</td>
+<td><code>file://</code> のHTMLを開けるモダンブラウザ（Chrome, Firefox, Safari, Edge）とクリップボードへのアクセス。サーバー・拡張機能・アカウントは不要</td>
+</tr>
+<tr>
+<td>任意</td>
+<td>Playwright — ブラウザテストとデモGIFの再生成に使用。Pillow — <code>docs/build_demo_gif.py</code> のみで使用。<code>markdown</code> パッケージ — <code>docs/build_readme_html.py</code> および <code>docs/build_alignment_html.py</code> のみで使用</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="aiantigravity-claude-code">AIエージェントのスキルとして導入する（Antigravity / Claude Code / その他）</h2>
+<p>リポジトリには Google Antigravity 用の <code>plugin.json</code> と Claude Code 用の <code>.claude-plugin/plugin.json</code>、
+標準的な <code>skills/&lt;name&gt;/SKILL.md</code> および <code>AGENTS.md</code> が同梱されています。以下のパスにクローンするだけで、
+追加のインストール手順なしで <strong>1回のクローンで2つのスキルが自動的に認識</strong>されます。</p>
+<pre><code class="language-bash"># Google Antigravity（グローバルプラグインとして導入）
+git clone https://github.com/monasu0v0/samepage.git ~/.gemini/config/plugins/samepage
+
+# Google Antigravity（ワークスペース単位のプラグインとして導入）
+git clone https://github.com/monasu0v0/samepage.git .agents/plugins/samepage
+
+# Claude Code
+git clone https://github.com/monasu0v0/samepage.git ~/.claude/skills/samepage
+</code></pre>
+<p>その他のコーディングエージェント（Codex, Cursor 等）でも、スキルディレクトリへクローンするか、
+<code>skills/samepage/SKILL.md</code> と <code>skills/grill-on-samepage/SKILL.md</code> を参照させるだけでそのまま利用できます。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>スキル</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>samepage</code></td>
+<td>既存のHTMLにレビュー層を注入する。「この資料にコメントできるようにして」「HTMLにレビュー機能をつけて」</td>
+</tr>
+<tr>
+<td><code>grill-on-samepage</code></td>
+<td>コードを書く前に設計を詰める。samepage の上でラウンド形式の面接を行い、合意した文書がプロジェクトのSSOTになる。「設計を詰めたい」</td>
+</tr>
+</tbody>
+</table></div>
+<p>実際の挙動は <code>skills/samepage/SKILL.md</code> と <code>skills/grill-on-samepage/SKILL.md</code> に定義されている。</p>
+<h2 id="cli">CLI リファレンス</h2>
+<pre><code>python3 samepage/cli.py &lt;input.html&gt; [オプション]
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>オプション</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;input&gt;</code></td>
+<td>入力HTMLファイル（位置引数、必須）</td>
+</tr>
+<tr>
+<td><code>--unit-selector SEL</code></td>
+<td>コメントのラベル/連番を付ける「単位」要素のセレクタ（<code>tag</code> / <code>.class</code> / <code>#id</code> / <code>tag.class</code>）。省略すると単位ラベル付けをスキップ</td>
+</tr>
+<tr>
+<td><code>--label-format FMT</code></td>
+<td>ラベルのテンプレート。<code>{n}</code> が1始まりの連番に展開される。既定 <code>{n}</code></td>
+</tr>
+<tr>
+<td><code>--doc-id ID</code></td>
+<td>JSON の <code>doc</code> フィールドと localStorage キーに使う識別子。既定は入力ファイルのstem</td>
+</tr>
+<tr>
+<td><code>--jump {scroll,hash}</code></td>
+<td>コメント一覧から単位要素へ飛ぶ方式。スムーススクロール、または <code>location.hash</code> を設定。既定 <code>scroll</code></td>
+</tr>
+<tr>
+<td><code>--out PATH</code></td>
+<td>出力先パス。既定は入力を直接上書き</td>
+</tr>
+<tr>
+<td><code>--responses PATH</code></td>
+<td>埋め込む返信JSON（レビューコメントへの返信）</td>
+</tr>
+<tr>
+<td><code>--questions PATH</code></td>
+<td>埋め込む質問JSON（質問ピン）</td>
+</tr>
+<tr>
+<td><code>--no-source-path</code></td>
+<td>注入したページの設定値 <code>sourcePath</code> を絶対パスではなく <code>null</code> として埋め込む。配布物には必ず付ける</td>
+</tr>
+<tr>
+<td><code>--finalize</code></td>
+<td>レビュー層と議論ブロックを除いた公開用HTMLを別ファイルに書き出す。<code>--unit-selector</code>/<code>--responses</code>/<code>--questions</code> とは併用不可</td>
+</tr>
+<tr>
+<td><code>--comments PATH</code></td>
+<td>finalize前に未解決（<code>open</code>）コメントの有無を確認するためのコメントJSON</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td><code>--comments</code> が未解決を報告してもfinalizeを強行する</td>
+</tr>
+</tbody>
+</table></div>
+<p>既に注入済みのファイルに対して再注入すると、その場でレビュー層が置き換わる（冪等）。再注入時に
+<code>--responses</code> / <code>--questions</code> のどちらも渡さないと、対応する層は消える（常に直近に注入した
+内容だけが表示される仕様）。</p>
+<h2 id="_7">ターゲットの種類</h2>
+<p>コメント・質問のターゲットはそれぞれ <code>kind</code> を持つ。</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>kind</th>
+<th>指す対象</th>
+<th>主なフィールド</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text-range</code></td>
+<td>選択された文字列の範囲</td>
+<td><code>selectedText</code>, <code>contextBefore</code>, <code>contextAfter</code></td>
+</tr>
+<tr>
+<td><code>element</code></td>
+<td>要素そのもの</td>
+<td><code>path</code>（nth-of-typeチェーン）, <code>tag</code>, <code>nearText</code></td>
+</tr>
+<tr>
+<td><code>insertion-point</code></td>
+<td>要素の直前/直後の隙間</td>
+<td><code>afterPath</code>, <code>beforePath</code>, <code>nearText</code>, <code>afterTag</code>, <code>beforeTag</code></td>
+</tr>
+<tr>
+<td><code>diagram-node</code></td>
+<td><code>data-sp-node</code> を振られたSVG図中のノード</td>
+<td><code>nodeId</code>, <code>nodeLabel</code>, <code>nearText</code></td>
+</tr>
+<tr>
+<td><code>document</code></td>
+<td>文書全体</td>
+<td>（なし）</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>path</code> や <code>nodeId</code> が一致しなくなったときのフォールバック順を含む、フィールドごとの詳細な
+解決規則は <code>skills/samepage/SKILL.md</code> §4 にある。</p>
+<h2 id="svg">ドキュメント生成側向け: SVG図をコメント対象にする</h2>
+<p>SVG図を埋め込むHTMLを生成する側は、図中の各ノードの意味的な <code>&lt;g&gt;</code> に属性を振ることで、
+ノード単位で直接コメント可能にできる。</p>
+<pre><code class="language-html">&lt;g data-sp-node=&quot;spec-07&quot; data-sp-label=&quot;監査ログは追記のみ&quot;&gt;
+  &lt;rect .../&gt;
+  &lt;text&gt;監査ログは追記のみ&lt;/text&gt;
+&lt;/g&gt;
+</code></pre>
+<ul>
+<li><code>data-sp-node</code> は<strong>その図を生成した元ソース側のノードIDと同一の安定ID</strong>にする（IRのノードID
+  や論理識別子など。レイアウト由来の連番 <code>g1</code>, <code>g2</code>... にはしない）。これによりレイアウトが
+  変わる再生成を経てもIDが生き残る。</li>
+<li><code>data-sp-label</code> にはノードの表示名を入れる。IDが変わったときのフォールバック解決と、パネル
+  表示に使われる。</li>
+<li>エッジ（矢印）もクリック対象にしたい場合は、専用の <code>&lt;g data-sp-node="..."&gt;</code> で包み、表示用の
+  線に重ねて透明で太いヒットパスを描く。</li>
+</ul>
+<p>公開用の出力に残したくない議論ブロック（検討中のメモ、案の比較など、レビュー中だけ必要な内容）
+には <code>data-sp-discussion</code> を付ける。レビューが解決すれば <code>--finalize</code> がレビュー層とともに
+これを除去する。</p>
+<pre><code class="language-html">&lt;div data-sp-discussion&gt;検討中のメモ。--finalize で除去される。&lt;/div&gt;
+</code></pre>
+<p>完全な規約は <code>skills/samepage/SKILL.md</code> §7.5 と §8 を参照。</p>
+<h2 id="_8">プライバシーに関する注意</h2>
+<p>既定では、注入されたページにレビュー層を注入したファイルの絶対パスが埋め込まれる。これは、
+書き出したコメントJSONだけを受け取ったセッションでも対象ファイルを特定できるようにするための
+もの。このパスは2つの名前で登場するので混同しないよう注意してほしい。ページ内では埋め込み設定の
+<code>sourcePath</code> キー、書き出したJSONではそこから写された <code>sourceHtml</code> フィールドで、どちらも実在し、
+同じパスを保持している。</p>
+<p>HTML自体を配布する場合（READMEに添付する、自分のマシン外に共有するなど）は <code>--no-source-path</code>
+を付けること。<code>sourcePath</code> がローカルのファイルシステムパスではなく <code>null</code> として埋め込まれ、
+書き出される <code>sourceHtml</code> も <code>null</code> になる。</p>
+<h2 id="faq">FAQ</h2>
+<p><strong>Q. HTMLファイルが原本なのか生成物なのか、どうやって見分ける？</strong>
+<code>sourceHtml</code> のパスの隣に同名の <code>.md</code> などの生成元ファイルがあるか、HTML内に「Generated
+from ...」のような印がないかを確認します。原本ならそのHTMLを直接直し、生成物なら生成元を直して
+再生成します（skills/samepage/SKILL.md §4 ルール1）。</p>
+<p><strong>Q. HTMLを再生成したらコメントの <code>path</code> が一致しなくなった。コメントは失われる？</strong>
+失われません。<code>element</code> と <code>insertion-point</code> ターゲットには自動フォールバックがあります。<code>element</code>
+は <code>path</code> が使えなければ <code>tag</code> + <code>nearText</code>（要素テキストの先頭60文字）で近い一致を探します。
+<code>insertion-point</code> は <code>afterPath</code> から <code>afterTag</code>+<code>nearText</code> にフォールバックし、それも
+失敗すれば <code>beforePath</code>/<code>beforeTag</code> 側から解決します。<code>diagram-node</code> は <code>nodeId</code> から
+<code>nodeLabel</code>、さらに <code>nearText</code> の順にフォールバックします。詳細は skills/samepage/SKILL.md §4。</p>
+<p><strong>Q. コメントはどこに保存される？</strong>
+ブラウザの <code>localStorage</code> に、キー <code>samepage:&lt;doc&gt;</code> で保存されます（ブラウザのプロファイル
+ごと、どこにも同期されません）。書き出したJSONが唯一の永続的な記録であり、<code>--doc-id</code> でキーの
+<code>&lt;doc&gt;</code> 部分を制御できます（既定は入力ファイルのstem）。</p>
+<p><strong>Q. 既に注入済みのファイルにさらに注入するとどうなる？</strong>
+その場でレビュー層が置き換わります（冪等）。再注入時に <code>--responses</code> / <code>--questions</code> の
+どちらか（または両方）を省略すると、対応する層は消えます（常に直近に注入した内容だけが
+表示されます）。</p>
+<p><strong>Q. SVG図中のノードにコメントできないのはなぜ？</strong>
+そのSVG図を生成した側が <code>data-sp-node</code> をノードに振っていないため。CLI側はこの属性を自動で
+付与しません（意味的な単位を知っているのは生成側だけ）。上の「ドキュメント生成側向け」の節と
+<code>skills/samepage/SKILL.md</code> §7.5 を参照してください。</p>
+<p><strong>Q. <code>--finalize</code> が未解決コメントを理由に拒否する。どうすればいい？</strong>
+<code>--comments</code> にファイルを渡すと <code>open</code> の項目が報告されて中断します。レビュー側で解決するか、
+<code>--force</code> を付けて強行します。finalize後の出力先は既定で <code>&lt;stem&gt;.final.html</code>（<code>--out</code> で
+変更可能）。入力HTMLは変更されません。</p>
+<h2 id="_9">開発</h2>
+<pre><code class="language-bash">python3 -m pytest
+</code></pre>
+<p>ブラウザ駆動のテスト（<code>tests/test_browser.py</code>）は追加でPlaywright
+（<code>pip install playwright &amp;&amp; playwright install chromium</code>）が必要。Playwrightが無い環境では
+自動的にスキップされる。ビルダーのテスト（<code>tests/test_alignment_builder.py</code>）も同様に、
+<code>markdown</code> が無ければスキップされる。</p>
+<p>生成物の再生成は以下:</p>
+<pre><code class="language-bash">pip install markdown
+python3 docs/build_readme_html.py README.md README.html
+python3 docs/build_readme_html.py README.ja.md README.ja.html
+python3 samepage/cli.py README.html --unit-selector body \
+    --label-format &quot;Whole&quot; --doc-id readme-en --no-source-path
+python3 samepage/cli.py README.ja.html --unit-selector body \
+    --label-format &quot;全体&quot; --doc-id readme-ja --no-source-path
+for md in docs/alignment/*.md; do
+    [ &quot;$(basename &quot;$md&quot;)&quot; = &quot;INDEX.md&quot; ] &amp;&amp; continue
+    python3 docs/build_alignment_html.py &quot;$md&quot;
+    python3 samepage/cli.py &quot;${md%.md}.html&quot; --finalize --out &quot;${md%.md}.final.html&quot;
+done
+python3 docs/build_alignment_html.py --index docs/alignment
+</code></pre>
+<p>CI はこれと同じ手順を実行し、生成物が古ければ fail する。<code>--no-source-path</code> は必須で、
+付け忘れるとローカルの絶対パスがコミットされる。</p>
+<h2 id="_10">コントリビューション</h2>
+<p>Issue・PRは歓迎します。バグ報告には、注入前のHTML（または最小の再現手順）と、書き出した
+コメントJSONを添付してください。</p>
+<p>開発は <code>develop</code> ブランチで行います。<code>main</code> はリリースブランチで、マージはメンテナのみが行います。
+PRは <code>develop</code> に対して開いてください。</p>
+<p>PRを出す前に <code>python3 -m pytest</code> を実行してください（ブラウザテストはPlaywrightがインストール
+されていれば実行され、なければスキップされます）。</p>
+<p>命名（<code>sp-</code> というCSSプレフィックス、<code>data-sp-*</code> 属性、マーカーコメント）および契約は固定であり、
+<a href="docs/specification.ja.md"><code>docs/specification.ja.md</code></a>、<a href="docs/design.md"><code>docs/design.md</code></a>、および
+設計判断記録 <a href="docs/adr/README.md"><code>docs/adr/</code></a> を参照してください。</p>
+<p>デモの再生成: <code>python3 docs/build_demo_gif.py</code>。</p>
+<p><code>README.html</code> / <code>README.ja.html</code> と <code>docs/alignment/</code> 配下のHTMLはgit管理下にあるため、生成元の
+<code>.md</code> を変更したら再生成してください。コマンドは上の「開発」節のものをそのまま使ってください
+（CI が突き合わせているのはこの手順です）。<code>--no-source-path</code> は必須で、付け忘れると自分の
+マシンの絶対パスがコミットされるHTMLに焼き込まれます。</p>
+<h2 id="_11">クレジット</h2>
+<p><code>grill-on-samepage</code> スキルの面接手法の語彙（design tree、frontier、ラウンド形式の質問、事実と
+決定の分離）は、<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>（MIT）の <code>grilling</code>
+スキルから借用しています。実装は独立に書いたもので、フォークではありません。</p>
+<h2 id="_12">ライセンス</h2>
+<p>MIT — <code>LICENSE</code> を参照。</p></article>
+  </main>
+</div>
+<!-- samepage:begin -->
+<style>
+/* ==== samepage review layer (sp-) ==== */
+/* Does not depend on host CSS variables (e.g. --sp-ink). The sp- UI is a
+   self-contained white card with fixed colors so it stays legible even on
+   a dark host page. */
+.sp-select-btn{
+  position:fixed;z-index:300;
+  background:#0f766e;color:#fff;border:none;border-radius:4px;
+  padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.3);
+  display:none;
+}
+.sp-popup{
+  position:fixed;z-index:310;background:#fff;color:#1f2430;
+  border:1px solid #e4e6ea;border-radius:6px;
+  box-shadow:0 8px 30px rgba(0,0,0,.3);padding:10px;width:280px;display:none;
+}
+.sp-popup textarea{
+  width:100%;min-height:70px;font-size:13px;font-family:inherit;
+  box-sizing:border-box;padding:6px;border:1px solid #e4e6ea;border-radius:4px;resize:vertical;
+  background:#fff;color:#1f2430;
+}
+.sp-popup-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px;}
+.sp-popup-actions button{font-size:12px;padding:5px 12px;border-radius:4px;border:none;cursor:pointer;}
+.sp-popup-save{background:#0f766e;color:#fff;}
+.sp-popup-cancel{background:#e5e7ee;color:#1f2430;}
+.sp-popup-palette{display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap;}
+.sp-popup-palette button{
+  font-size:11px;padding:3px 8px;border-radius:10px;cursor:pointer;
+  border:1px solid #e4e6ea;background:#fff;color:#1f2430;
+}
+.sp-popup-palette button.active{background:#0f766e;color:#fff;border-color:#0f766e;}
+.sp-popup-guide{font-size:11px;color:#2563eb;margin-bottom:4px;}
+.sp-popup-guide:empty{display:none;}
+.sp-popup-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+.sp-popup-chips:empty{display:none;}
+.sp-chip{
+  font-size:11px;background:#eef0fb;color:#1f2430;border:1px solid #e4e6ea;
+  border-radius:10px;padding:2px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.sp-chip b{color:#f59e0b;}
+.sp-popup-add{background:#fff;border:1px dashed #0f766e;color:#0f766e;margin-right:auto;}
+.sp-badge{
+  position:fixed;top:14px;right:18px;z-index:250;
+  background:#0f766e;color:#fff;border:none;border-radius:16px;
+  padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.sp-panel{
+  position:fixed;top:0;right:-360px;width:340px;height:100%;
+  background:#fff;color:#1f2430;border-left:1px solid #e4e6ea;box-shadow:-4px 0 20px rgba(0,0,0,.15);
+  z-index:280;transition:right .2s ease;display:flex;flex-direction:column;
+}
+.sp-panel.open{right:0;}
+.sp-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border-bottom:1px solid #e4e6ea;font-weight:700;font-size:14px;
+  color:#1f2430;flex-shrink:0;
+}
+.sp-panel-header button{background:none;border:none;font-size:18px;cursor:pointer;color:#5b6472;}
+/* The question area and the comment list don't split at a fixed ratio;
+   they share height in proportion to their content. flex-shrink scales
+   with content amount, so if one side is nearly empty the other can use
+   almost all the vertical space. min-height is only the floor for when
+   both sides have a lot of content. */
+.sp-panel-list{flex:1 1 auto;min-height:0;overflow-y:auto;padding:8px 12px;}
+.sp-panel-list:not(:empty){min-height:min(200px,35%);}
+.sp-panel-json{padding:10px 16px;border-bottom:1px solid #e4e6ea;flex-shrink:0;}
+.sp-panel-json button{
+  width:100%;padding:8px;font-size:12px;border-radius:4px;
+  border:1px solid #0f766e;background:#eef0fb;color:#0f766e;cursor:pointer;
+}
+.sp-panel-json button + button{margin-top:6px;}
+/* The one-click copy is the primary way out of the panel, so it's filled. */
+.sp-panel-json .sp-json-copy-direct{background:#0f766e;color:#fff;font-weight:700;}
+.sp-item{border:1px solid #e4e6ea;border-radius:6px;padding:10px;margin-bottom:10px;cursor:pointer;color:#1f2430;}
+.sp-item:hover{background:#f7f8fb;}
+.sp-item.resolved{opacity:.55;}
+.sp-item .sp-item-unit{font-size:11px;color:#0f766e;font-weight:700;margin-bottom:4px;}
+.sp-item-action{
+  display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;
+  background:#e0e7ff;color:#3730a3;margin-left:6px;vertical-align:middle;
+}
+.sp-item .sp-item-excerpt{font-size:12px;color:#5b6472;font-style:italic;margin-bottom:4px;}
+.sp-item .sp-item-comment{font-size:13px;color:#1f2430;line-height:1.4;margin-bottom:6px;white-space:pre-wrap;}
+.sp-item .sp-item-noanchor{font-size:11px;color:#c0392b;margin-bottom:4px;}
+.sp-item-actions{display:flex;gap:8px;}
+.sp-item-actions button{font-size:11px;padding:4px 8px;border-radius:4px;border:1px solid #e4e6ea;background:#fff;color:#1f2430;cursor:pointer;}
+.sp-item .sp-edit-textarea{
+  width:100%;min-height:60px;font-size:13px;font-family:inherit;
+  box-sizing:border-box;padding:6px;border:1px solid #e4e6ea;border-radius:4px;
+  resize:vertical;margin-bottom:6px;background:#fff;color:#1f2430;
+}
+mark.sp-mark{background:#fff2a8;color:#1f2430;cursor:pointer;padding:0 1px;border-radius:2px;}
+mark.sp-mark.sp-mark-resolved{background:#eceef2;color:#1f2430;}
+mark.sp-mark-fixed{background:#bbf7d0;color:#14532d;cursor:pointer;padding:0 1px;border-radius:2px;}
+mark.sp-mark-fixed:hover{background:#86efac;}
+.sp-response{border-top:1px dashed #e4e6ea;margin-top:8px;padding-top:8px;cursor:pointer;}
+.sp-response-head{font-size:11px;margin-bottom:4px;}
+.sp-response-action{
+  display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;
+  background:#dcfce7;color:#166534;
+}
+.sp-response-action.sp-action-partial{background:#fef9c3;color:#854d0e;}
+.sp-response-action.sp-action-declined{background:#fee2e2;color:#991b1b;}
+.sp-response-action.sp-action-noted{background:#e0e7ff;color:#3730a3;}
+.sp-response-reply{font-size:12px;color:#1f2430;line-height:1.4;white-space:pre-wrap;}
+.sp-item.sp-item-response-only .sp-item-unit{color:#5b6472;}
+.sp-item.sp-item-response-only .sp-response{border-top:none;margin-top:0;padding-top:0;}
+.sp-json-modal{
+  position:fixed;inset:0;z-index:400;display:none;
+  align-items:center;justify-content:center;
+}
+.sp-json-modal.open{display:flex;}
+.sp-json-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.5);
+}
+.sp-json-box{
+  position:relative;z-index:1;background:#fff;color:#1f2430;border-radius:8px;
+  box-shadow:0 12px 40px rgba(0,0,0,.35);
+  width:min(640px,90vw);max-height:80vh;
+  display:flex;flex-direction:column;padding:16px;
+}
+.sp-json-hint{font-size:12px;color:#5b6472;margin-bottom:8px;}
+.sp-json-box textarea{
+  flex:1;width:100%;min-height:280px;font-size:12px;font-family:monospace;
+  box-sizing:border-box;padding:8px;border:1px solid #e4e6ea;border-radius:4px;
+  resize:vertical;white-space:pre;background:#fff;color:#1f2430;
+}
+.sp-json-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;}
+.sp-json-actions button{font-size:12px;padding:6px 14px;border-radius:4px;border:none;cursor:pointer;}
+.sp-json-copy{background:#0f766e;color:#fff;}
+.sp-json-close{background:#e5e7ee;color:#1f2430;}
+
+.sp-pick-outline{
+  position:fixed;z-index:290;pointer-events:none;display:none;
+  outline:2px solid #2563eb;outline-offset:1px;background:rgba(37,99,235,.08);
+}
+.sp-pick-line{
+  position:fixed;z-index:291;pointer-events:none;display:none;
+  height:0;border-top:3px solid #2563eb;border-radius:2px;
+}
+.sp-pick-hint{
+  position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:292;display:none;
+  background:#1f2430;color:#fff;font-size:12px;padding:6px 14px;border-radius:14px;
+  box-shadow:0 2px 10px rgba(0,0,0,.3);
+}
+body.sp-picking, body.sp-picking *{cursor:crosshair!important;}
+.sp-mark-el{outline:2px solid #f59e0b;outline-offset:1px;cursor:pointer;}
+/* Highlighting for nodes inside an SVG diagram. CSS outline has no effect on
+   SVG elements, so we overlay a rect instead (see svgHalo() in samepage.js).
+   pointer-events:none lets clicks pass through to the node itself. */
+.sp-node-halo{fill:rgba(245,158,11,.10);stroke:#f59e0b;stroke-width:2;pointer-events:none;}
+.sp-node-halo-resolved{stroke:#9aa1ad;fill:rgba(154,161,173,.08);}
+.sp-qpin-svg{cursor:pointer;}
+[data-sp-node]{cursor:pointer;}
+.sp-insert-mark{display:block;height:0;border-top:2px dashed #f59e0b;margin:2px 0;cursor:pointer;}
+mark.sp-mark[data-sp-badge]::before,.sp-mark-el[data-sp-badge]::before,.sp-insert-mark[data-sp-badge]::before{
+  content:attr(data-sp-badge);
+  display:inline-block;min-width:14px;height:14px;line-height:14px;text-align:center;
+  font-size:10px;font-weight:700;color:#fff;background:#f59e0b;border-radius:7px;
+  margin-right:2px;vertical-align:super;
+}
+
+.sp-panel-questions{
+  padding:8px 12px;border-bottom:1px solid #e4e6ea;
+  flex:0 1 auto;min-height:0;overflow-y:auto;
+}
+.sp-panel-questions:not(:empty){min-height:min(120px,20%);}
+.sp-panel-questions:empty{display:none;}
+.sp-qitem{border:1px solid #c7d2fe;background:#eef2ff;color:#1f2430;border-radius:6px;padding:10px;margin-bottom:8px;}
+.sp-qitem-q{font-size:13px;line-height:1.4;margin-bottom:6px;}
+.sp-qitem-q::before{content:'🤖❓ ';}
+.sp-qitem-choices{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+.sp-qitem-choices button{font-size:11px;padding:4px 10px;border-radius:10px;border:1px solid #6366f1;background:#fff;color:#3730a3;cursor:pointer;}
+.sp-qitem-choices button.selected{background:#6366f1;color:#fff;}
+.sp-qitem textarea{width:100%;min-height:40px;font-size:12px;font-family:inherit;box-sizing:border-box;padding:5px;border:1px solid #e4e6ea;border-radius:4px;resize:vertical;background:#fff;color:#1f2430;}
+.sp-qitem-answered{font-size:10px;color:#166534;font-weight:700;}
+.sp-qpin{cursor:pointer;font-size:0.9em;padding:0 2px;background:#eef2ff;color:#1f2430;border-radius:3px;}
+.sp-qpin.sp-qpin-answered{background:#e6f6ec;color:#1a7f37;}
+.sp-qpin-svg.sp-qpin-answered{fill:#1a7f37;}
+
+@media print{
+  .sp-select-btn,.sp-popup,.sp-badge,.sp-panel,.sp-json-modal,.sp-pick-outline,.sp-pick-line,.sp-pick-hint,.sp-insert-mark,.sp-qpin,.sp-qpin-svg,.sp-node-halo{display:none!important;}
+  mark.sp-mark,mark.sp-mark-fixed{background:none!important;padding:0!important;}
+}
+</style>
+<!-- samepage review layer UI -->
+<button id="spBadge" class="sp-badge" type="button" title="Open comment list (c key)">💬 0</button>
+
+<button id="spSelectBtn" class="sp-select-btn" type="button">💬 Comment</button>
+
+<div id="spPopup" class="sp-popup">
+  <div id="spPopupPalette" class="sp-popup-palette">
+    <button type="button" data-sp-action="move">Move</button>
+    <button type="button" data-sp-action="insert">Insert here</button>
+    <button type="button" data-sp-action="delete">Delete</button>
+    <button type="button" data-sp-action="shorten">Shorten</button>
+    <button type="button" data-sp-action="keep">Keep 👍</button>
+  </div>
+  <div id="spPopupGuide" class="sp-popup-guide"></div>
+  <div id="spPopupChips" class="sp-popup-chips"></div>
+  <textarea id="spPopupText" placeholder="Enter a comment"></textarea>
+  <div class="sp-popup-actions">
+    <button id="spPopupAddTarget" class="sp-popup-add" type="button" title="Select more text or click to add another target">+ Add target</button>
+    <button id="spPopupCancel" class="sp-popup-cancel" type="button">Cancel</button>
+    <button id="spPopupSave" class="sp-popup-save" type="button">Save</button>
+  </div>
+</div>
+
+<div id="spPanel" class="sp-panel">
+  <div class="sp-panel-header">
+    <span>Comments (<span id="spPanelCount">0</span>)</span>
+    <button id="spPanelClose" type="button" aria-label="Close">×</button>
+  </div>
+  <div class="sp-panel-json">
+    <button id="spJsonCopyDirect" class="sp-json-copy-direct" type="button" title="Copy the export JSON to the clipboard (j key)">📋 Copy JSON</button>
+    <button id="spJsonBtn" type="button" title="Show the export JSON in a dialog">👁 Show JSON</button>
+    <button id="spDocCommentBtn" type="button">📄 Whole-document comment</button>
+  </div>
+  <div id="spPanelQuestions" class="sp-panel-questions"></div>
+  <div id="spPanelList" class="sp-panel-list"></div>
+</div>
+
+<div id="spJsonModal" class="sp-json-modal">
+  <div class="sp-json-overlay"></div>
+  <div class="sp-json-box">
+    <div class="sp-json-hint">Copy this JSON and paste it to your AI agent (e.g. Antigravity, Claude Code).</div>
+    <textarea id="spJsonText" readonly></textarea>
+    <div class="sp-json-actions">
+      <button id="spJsonClose" class="sp-json-close" type="button">Close</button>
+      <button id="spJsonCopy" class="sp-json-copy" type="button">Copy</button>
+    </div>
+  </div>
+</div>
+
+<div id="spPickOutline" class="sp-pick-outline"></div>
+<div id="spPickLine" class="sp-pick-line"></div>
+<div id="spPickHint" class="sp-pick-hint">Click to select an element / near the top or bottom edge for an insertion point / ↑↓ for parent or child / Esc to cancel</div>
+<script>window.SAMEPAGE_CONFIG={"doc": "readme-ja", "jump": "scroll", "storageKey": "samepage:readme-ja", "sourcePath": null};</script>
+<script>
+(function(){
+  var CFG = window.SAMEPAGE_CONFIG || {};
+  var STORAGE_KEY = CFG.storageKey || "samepage:default";
+  var JUMP_MODE = CFG.jump === "hash" ? "hash" : "scroll";
+  var DOC_ID = CFG.doc || "default";
+  var RESPONSES = (window.SAMEPAGE_RESPONSES && Array.isArray(window.SAMEPAGE_RESPONSES.responses)) ? window.SAMEPAGE_RESPONSES.responses : [];
+  var QUESTIONS = (window.SAMEPAGE_QUESTIONS && Array.isArray(window.SAMEPAGE_QUESTIONS.questions)) ? window.SAMEPAGE_QUESTIONS.questions : [];
+  var ANSWERS_KEY = 'samepage-answers:' + DOC_ID;
+
+  var badge = document.getElementById('spBadge');
+  var selectBtn = document.getElementById('spSelectBtn');
+  var popup = document.getElementById('spPopup');
+  var popupText = document.getElementById('spPopupText');
+  var popupSave = document.getElementById('spPopupSave');
+  var popupCancel = document.getElementById('spPopupCancel');
+  var panel = document.getElementById('spPanel');
+  var panelClose = document.getElementById('spPanelClose');
+  var panelCount = document.getElementById('spPanelCount');
+  var panelList = document.getElementById('spPanelList');
+  var jsonBtn = document.getElementById('spJsonBtn');
+  var jsonCopyDirectBtn = document.getElementById('spJsonCopyDirect');
+  var jsonModal = document.getElementById('spJsonModal');
+  var jsonOverlay = jsonModal.querySelector('.sp-json-overlay');
+  var jsonText = document.getElementById('spJsonText');
+  var jsonCopyBtn = document.getElementById('spJsonCopy');
+  var jsonCloseBtn = document.getElementById('spJsonClose');
+  var docCommentBtn = document.getElementById('spDocCommentBtn');
+  var popupChips = document.getElementById('spPopupChips');
+  var popupAddTarget = document.getElementById('spPopupAddTarget');
+  var popupPalette = document.getElementById('spPopupPalette');
+  var popupGuide = document.getElementById('spPopupGuide');
+  var panelQuestions = document.getElementById('spPanelQuestions');
+
+  var comments = [];
+  var pendingSelection = null;   // text selection just made, popup not shown yet (waiting on selectBtn/'a')
+  var pendingTargets = [];       // targets collected while the popup is open: {unit, unitLabel, target}
+  var pendingAction = null;      // action chosen from the verb palette (move/insert/delete/shorten/keep)
+  var ACTION_LABEL = {move:'Move', insert:'Insert', 'delete':'Delete', shorten:'Shorten', keep:'Keep 👍'};
+  var popupOpen = false;
+  var editingId = null;
+  var addTargetHintTimer = null;
+
+  // ---- IME composition detection (avoid confusing a confirming Enter with a submit Enter) ----
+  // isComposing / keyCode===229 can be missing or wrong in some environments, so we also keep
+  // our own flag driven by compositionstart/compositionend as a last resort. These aren't keydown
+  // events, so they are unaffected by the keydown capture handler's stopPropagation below and can
+  // be safely picked up via a document-level capture listener.
+  var imeComposing = false;
+  document.addEventListener('compositionstart', function(){ imeComposing = true; }, true);
+  document.addEventListener('compositionend', function(){ imeComposing = false; }, true);
+  function isImeComposing(e){
+    return imeComposing || e.isComposing === true || e.keyCode === 229;
+  }
+
+  function cssEsc(s){
+    if(window.CSS && CSS.escape) return CSS.escape(s);
+    return String(s).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+  }
+  function truncate(s, n){
+    s = s || '';
+    return s.length > n ? s.slice(0, n) + '…' : s;
+  }
+  function randomId8(){
+    var out = '';
+    for(var i=0;i<8;i++){ out += Math.floor(Math.random()*36).toString(36); }
+    return out;
+  }
+
+  // ---- unit lookup (host-agnostic: relies only on [data-sp-unit]) ----
+  function unitElement(unit){
+    if(!unit) return null;
+    var sel = '[data-sp-unit="' + cssEsc(unit) + '"]';
+    return document.querySelector(sel);
+  }
+  function unitInfoFor(node){
+    var el = node && node.closest ? node.closest('[data-sp-unit]') : null;
+    if(!el) return null;
+    return {
+      unit: el.getAttribute('data-sp-unit'),
+      unitLabel: el.getAttribute('data-sp-label') || el.getAttribute('data-sp-unit'),
+      el: el
+    };
+  }
+  function jumpToUnit(unit){
+    var el = unitElement(unit);
+    if(!el) return;
+    var index = el.getAttribute('data-sp-index');
+    if(JUMP_MODE === 'hash' && index){
+      location.hash = '#' + index;   // delegate to the host page's own hashchange routing
+    } else {
+      el.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  }
+
+  // ---- element path (nth-of-type chain; independent of id/class) ----
+  function cssPath(el){
+    var parts = [];
+    while(el && el.nodeType===1 && el!==document.body && el!==document.documentElement){
+      var tag = el.tagName.toLowerCase();
+      var idx = 1, sib = el;
+      while((sib = sib.previousElementSibling)){
+        if(sib.tagName===el.tagName) idx++;
+      }
+      parts.unshift(tag + ':nth-of-type(' + idx + ')');
+      el = el.parentElement;
+    }
+    return 'body' + (parts.length ? ' > ' + parts.join(' > ') : '');
+  }
+  function nearTextOf(el){
+    if(!el) return '';
+    return (el.textContent||'').replace(/\s+/g,' ').trim().slice(0,60);
+  }
+  function resolveByPath(path, tag, nearText){
+    var el = null;
+    if(path){
+      try{ el = document.querySelector(path); }catch(e){ el = null; }
+    }
+    if(el) return el;
+    // fallback: search elements of the same tag for a nearText match
+    if(!tag || !nearText) return null;
+    var cands = document.getElementsByTagName(tag);
+    for(var i=0;i<cands.length;i++){
+      if(cands[i].closest('#spPanel,#spPopup,#spJsonModal')) continue;
+      if(nearTextOf(cands[i]) === nearText) return cands[i];
+    }
+    return null;
+  }
+
+  // ---- diagram node (a node inside an SVG diagram; data-sp-node is used as a stable id) ----
+  // An nth-of-type chain (cssPath) shifts entirely once the diagram regenerates with one more
+  // node, but a semantic id assigned by the generator (data-sp-node) survives layout changes.
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+  function isSvgEl(el){
+    return !!(el && el.namespaceURI === SVG_NS);
+  }
+  function insideSvg(node){
+    var el = node && node.nodeType===3 ? node.parentElement : node;
+    return isSvgEl(el);
+  }
+  function diagramNodeOf(el){
+    return el && el.closest ? el.closest('[data-sp-node]') : null;
+  }
+  // nearText for a node. Don't mix in text from runtime decorations (question pins, halo).
+  function diagramNearText(el){
+    var clone = el.cloneNode(true);
+    var junk = clone.querySelectorAll('.sp-qpin-svg,.sp-node-halo');
+    for(var i=0;i<junk.length;i++){ junk[i].parentNode.removeChild(junk[i]); }
+    return (clone.textContent||'').replace(/\s+/g,' ').trim().slice(0,60);
+  }
+  function resolveDiagramNode(nodeId, nodeLabel){
+    var el = nodeId ? document.querySelector('[data-sp-node="'+cssEsc(nodeId)+'"]') : null;
+    if(el) return el;
+    // fallback: match by label (in case nodeId changed on regeneration)
+    if(!nodeLabel) return null;
+    var cands = document.querySelectorAll('[data-sp-node]');
+    for(var i=0;i<cands.length;i++){
+      if((cands[i].getAttribute('data-sp-label')||'') === nodeLabel) return cands[i];
+    }
+    return null;
+  }
+  // Highlighting uses an overlaid SVG rect rather than a CSS outline (outline has no effect on
+  // SVG elements). If the target is a container (g/svg) the rect is appended as a child so it
+  // inherits the same coordinate system; if it's a leaf element the rect is appended to the
+  // parent and the target's own transform is duplicated (getBBox does not include the element's
+  // own transform).
+  function svgOverlayHost(el){
+    var tag = el.tagName.toLowerCase();
+    return (tag==='g' || tag==='svg') ? el : el.parentNode;
+  }
+  function appendSvgOverlay(el, node){
+    var host = svgOverlayHost(el);
+    if(host !== el && el.getAttribute('transform')){
+      node.setAttribute('transform', el.getAttribute('transform'));
+    }
+    host.appendChild(node);
+    return node;
+  }
+  function svgHalo(el, cmtId, resolved){
+    var box;
+    try{ box = el.getBBox(); }catch(e){ return null; }
+    var halo = document.createElementNS(SVG_NS, 'rect');
+    halo.setAttribute('x', box.x - 4);
+    halo.setAttribute('y', box.y - 4);
+    halo.setAttribute('width', box.width + 8);
+    halo.setAttribute('height', box.height + 8);
+    halo.setAttribute('rx', 6);
+    halo.setAttribute('class', 'sp-node-halo' + (resolved ? ' sp-node-halo-resolved' : ''));
+    halo.setAttribute('data-sp-cmt-id', cmtId);
+    return appendSvgOverlay(el, halo);
+  }
+
+  // ---- element pick mode (devtools-inspector style) ----
+  var pickOutline = document.getElementById('spPickOutline');
+  var pickLine = document.getElementById('spPickLine');
+  var pickHint = document.getElementById('spPickHint');
+  var PICK_HINT_DEFAULT = pickHint.textContent;
+  var picking = null;   // {onPick: fn, onCancel: fn}; non-null only while active
+  var EDGE = 8;         // within this many px of the top/bottom edge counts as an insertion point
+  var pickBaseHit = null;  // the raw hit (the hovered element itself) picked up by the latest mousemove
+  var pickLevel = 0;       // number of parent-escalation steps taken via up/down
+
+  function climbToLevel(el, level){
+    for(var i=0;i<level;i++){
+      if(!el || el===document.body) break;
+      if(!el.parentElement) break;
+      el = el.parentElement;
+    }
+    return el;
+  }
+  function effectiveHit(){
+    if(!pickBaseHit) return null;
+    var el = climbToLevel(pickBaseHit.el, pickLevel);
+    var where = (pickLevel===0) ? pickBaseHit.where : null;
+    return {el:el, where:where};
+  }
+  function updatePickHintForLevel(){
+    if(pickLevel===0 || !pickBaseHit){ pickHint.textContent = PICK_HINT_DEFAULT; return; }
+    var el = climbToLevel(pickBaseHit.el, pickLevel);
+    if(el===document.body){
+      pickHint.textContent = 'Selected: whole document / click to confirm';
+    } else {
+      pickHint.textContent = 'Selected: <'+el.tagName.toLowerCase()+'> / ↑ for parent, ↓ to go back, click to confirm';
+    }
+  }
+
+  function pickTargetAt(e){
+    var el = e.target;
+    if(!el || el.nodeType!==1) return null;
+    if(el.closest('#spBadge,#spSelectBtn,#spPopup,#spPanel,#spJsonModal,#spPickHint')) return null;
+    if(el===document.body || el===document.documentElement) return null;
+    if(isSvgEl(el)){
+      // Inside a diagram: if data-sp-node is present, snap to it (a node is the semantic unit).
+      // Otherwise fall back to picking the element itself. There's no concept of an insertion
+      // point inside SVG, so `where` is always null.
+      var dn = diagramNodeOf(el);
+      return {el: dn || el, where:null};
+    }
+    var rect = el.getBoundingClientRect();
+    if(e.clientY - rect.top <= EDGE) return {el:el, where:'before'};
+    if(rect.bottom - e.clientY <= EDGE) return {el:el, where:'after'};
+    return {el:el, where:null};
+  }
+  function renderPickVisual(hit){
+    if(!hit){ pickOutline.style.display='none'; pickLine.style.display='none'; return; }
+    var rect = hit.el.getBoundingClientRect();
+    if(hit.where){
+      pickOutline.style.display='none';
+      pickLine.style.display='block';
+      pickLine.style.left = rect.left+'px';
+      pickLine.style.width = rect.width+'px';
+      pickLine.style.top = (hit.where==='before' ? rect.top-2 : rect.bottom-1)+'px';
+    } else {
+      pickLine.style.display='none';
+      pickOutline.style.display='block';
+      pickOutline.style.left = rect.left+'px';
+      pickOutline.style.top = rect.top+'px';
+      pickOutline.style.width = rect.width+'px';
+      pickOutline.style.height = rect.height+'px';
+    }
+  }
+  function pickMouseMove(e){
+    var hit = pickTargetAt(e);
+    if(hit){
+      if(!pickBaseHit || hit.el !== pickBaseHit.el) pickLevel = 0;
+      pickBaseHit = hit;
+    } else {
+      pickBaseHit = null;
+      pickLevel = 0;
+    }
+    renderPickVisual(effectiveHit());
+    updatePickHintForLevel();
+  }
+  function pickClick(e){
+    var hit = effectiveHit();
+    if(!hit) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var target;
+    if(hit.el===document.body){
+      target = {kind:'document'};
+    } else if(hit.el.hasAttribute && hit.el.hasAttribute('data-sp-node')){
+      target = {
+        kind: 'diagram-node',
+        nodeId: hit.el.getAttribute('data-sp-node'),
+        nodeLabel: hit.el.getAttribute('data-sp-label') || null,
+        nearText: diagramNearText(hit.el)
+      };
+    } else if(hit.where){
+      var prev = hit.where==='before' ? hit.el.previousElementSibling : hit.el;
+      var next = hit.where==='before' ? hit.el : hit.el.nextElementSibling;
+      target = {
+        kind: 'insertion-point',
+        afterPath: prev ? cssPath(prev) : null,
+        beforePath: next ? cssPath(next) : null,
+        afterTag: prev ? prev.tagName.toLowerCase() : null,
+        beforeTag: next ? next.tagName.toLowerCase() : null,
+        nearText: nearTextOf(prev || next)
+      };
+    } else {
+      target = {
+        kind: 'element',
+        path: cssPath(hit.el),
+        tag: hit.el.tagName.toLowerCase(),
+        nearText: nearTextOf(hit.el)
+      };
+    }
+    var cb = picking.onPick;
+    var rect = hit.el.getBoundingClientRect();
+    stopPickMode();
+    cb(target, hit.el, rect);
+  }
+  function pickKeydown(e){
+    if(e.key==='Escape'){
+      e.preventDefault(); e.stopPropagation();
+      var cancelCb = picking && picking.onCancel;
+      stopPickMode();
+      if(cancelCb) cancelCb();
+      return;
+    }
+    if(e.key==='ArrowUp'){
+      e.preventDefault(); e.stopPropagation();
+      if(pickBaseHit){
+        var cur = climbToLevel(pickBaseHit.el, pickLevel);
+        if(cur !== document.body) pickLevel++;
+      }
+      renderPickVisual(effectiveHit());
+      updatePickHintForLevel();
+      return;
+    }
+    if(e.key==='ArrowDown'){
+      e.preventDefault(); e.stopPropagation();
+      if(pickLevel>0) pickLevel--;
+      renderPickVisual(effectiveHit());
+      updatePickHintForLevel();
+      return;
+    }
+  }
+  function startPickMode(onPick, onCancel){
+    if(picking) stopPickMode();
+    picking = {onPick:onPick, onCancel:onCancel};
+    pickBaseHit = null;
+    pickLevel = 0;
+    clearTimeout(addTargetHintTimer);
+    pickHint.textContent = PICK_HINT_DEFAULT;
+    document.body.classList.add('sp-picking');
+    pickHint.style.display='block';
+    document.addEventListener('mousemove', pickMouseMove, true);
+    document.addEventListener('click', pickClick, true);
+    document.addEventListener('keydown', pickKeydown, true);
+  }
+  function stopPickMode(){
+    picking = null;
+    pickBaseHit = null;
+    pickLevel = 0;
+    document.body.classList.remove('sp-picking');
+    pickHint.style.display='none';
+    renderPickVisual(null);
+    document.removeEventListener('mousemove', pickMouseMove, true);
+    document.removeEventListener('click', pickClick, true);
+    document.removeEventListener('keydown', pickKeydown, true);
+  }
+
+  function buildFlatMap(root){
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    var nodes = [], offsets = [], text = '', n;
+    while((n = walker.nextNode())){
+      offsets.push(text.length);
+      nodes.push(n);
+      text += n.nodeValue;
+    }
+    return {text:text, nodes:nodes, offsets:offsets};
+  }
+  function flatOffset(map, node, offset){
+    var idx = map.nodes.indexOf(node);
+    if(idx===-1) return -1;
+    return map.offsets[idx] + offset;
+  }
+
+  // ---- persistence (localStorage only, host-agnostic key) ----
+  function saveComments(list){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){
+      /* private mode etc. Keep working from in-memory state. */
+    }
+  }
+  function loadComments(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    }catch(e){ return []; }
+  }
+
+  // ---- data model v2: normalize into a targets[] array with a back-compat mirror ----
+  function normalizeComment(c){
+    if(!Array.isArray(c.targets) || c.targets.length===0){
+      c.targets = [{
+        label: '1',
+        kind: 'text-range',
+        selectedText: c.selectedText || '',
+        contextBefore: c.contextBefore || '',
+        contextAfter: c.contextAfter || ''
+      }];
+    }
+    return c;
+  }
+  function firstTextRange(c){
+    for(var i=0;i<c.targets.length;i++){
+      if(c.targets[i].kind==='text-range') return c.targets[i];
+    }
+    return null;
+  }
+
+  // ---- questions (AI -> human. Answers are stored in localStorage `samepage-answers:{doc}`) ----
+  function saveAnswers(list){
+    try{ localStorage.setItem(ANSWERS_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function loadAnswers(){
+    try{
+      var raw = localStorage.getItem(ANSWERS_KEY);
+      var list = raw ? JSON.parse(raw) : [];
+      return Array.isArray(list) ? list : [];
+    }catch(e){ return []; }
+  }
+  var answers = [];
+  function answerFor(qid){
+    return answers.filter(function(a){ return a.questionId===qid; })[0] || null;
+  }
+  function setAnswer(qid, patch){
+    var a = answerFor(qid);
+    if(!a){ a = {questionId:qid, answer:null, note:''}; answers.push(a); }
+    Object.keys(patch).forEach(function(k){ a[k]=patch[k]; });
+    a.answeredAt = new Date().toISOString();
+    saveAnswers(answers);
+    refreshQuestionPins();
+  }
+  // Answered questions switch their pin from ❓ to ✓ (answer state comes from localStorage, so it
+  // only persists within the same browser).
+  function refreshQuestionPins(){
+    var pins = document.querySelectorAll('.sp-qpin[data-sp-q-id],.sp-qpin-svg[data-sp-q-id]');
+    Array.prototype.forEach.call(pins, function(p){
+      var a = answerFor(p.getAttribute('data-sp-q-id'));
+      var done = !!(a && a.answer);
+      if(p.firstChild && p.firstChild.nodeType===3) p.firstChild.nodeValue = done ? '✓' : '❓';
+      p.classList.toggle('sp-qpin-answered', done);
+    });
+  }
+  // Pin anchor. Branches on the target's kind (element -> start of the element, text-range ->
+  // right after the matched text, insertion-point -> at the position, no target -> no pin, panel only).
+  function anchorQuestion(q){
+    var t = q.target;
+    if(!t) return false;
+    var pin = document.createElement('span');
+    pin.className = 'sp-qpin';
+    pin.textContent = '❓';
+    pin.setAttribute('data-sp-q-id', q.id);
+    pin.title = q.question;
+    pin.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      panel.classList.add('open');
+      highlightPanelItem(q.id);
+    });
+    if(t.kind==='diagram-node'){
+      var nodeEl = resolveDiagramNode(t.nodeId, t.nodeLabel);
+      if(!nodeEl) return false;
+      return svgQuestionPin(nodeEl, q);
+    }
+    if(t.kind==='element'){
+      var el = resolveByPath(t.path, t.tag, t.nearText);
+      if(!el) return false;
+      el.insertBefore(pin, el.firstChild);
+      return true;
+    }
+    if(t.kind==='insertion-point'){
+      var after = t.afterPath ? resolveByPath(t.afterPath, null, null) : null;
+      var before = t.beforePath ? resolveByPath(t.beforePath, null, null) : null;
+      if(after && after.parentNode){ after.parentNode.insertBefore(pin, after.nextSibling); return true; }
+      if(before && before.parentNode){ before.parentNode.insertBefore(pin, before); return true; }
+      return false;
+    }
+    // text-range: insert the pin right after the target text
+    var root = (q.unit && unitElement(q.unit)) || document.body;
+    var loc = locateText(root, t.selectedText, t.contextBefore, t.contextAfter);
+    if(!loc) return false;
+    // An HTML span pin can't be inserted into SVG text (it wouldn't render). Panel display only.
+    if(insideSvg(loc.node)) return false;
+    var afterNode = loc.node.splitText(loc.start + loc.len);
+    afterNode.parentNode.insertBefore(pin, afterNode);
+    return true;
+  }
+  // A question pin planted on a node inside an SVG diagram. Drawn as SVG text at the node's
+  // bounding box, top-right corner.
+  function svgQuestionPin(el, q){
+    var box;
+    try{ box = el.getBBox(); }catch(e){ return false; }
+    var pin = document.createElementNS(SVG_NS, 'text');
+    pin.textContent = '❓';
+    pin.setAttribute('x', box.x + box.width - 6);
+    pin.setAttribute('y', box.y + 4);
+    pin.setAttribute('font-size', '16');
+    pin.setAttribute('class', 'sp-qpin-svg');
+    pin.setAttribute('data-sp-q-id', q.id);
+    var title = document.createElementNS(SVG_NS, 'title');
+    title.textContent = q.question;
+    pin.appendChild(title);
+    pin.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      panel.classList.add('open');
+      highlightPanelItem(q.id);
+    });
+    appendSvgOverlay(el, pin);
+    return true;
+  }
+  function renderQuestions(){
+    panelQuestions.innerHTML = '';
+    QUESTIONS.forEach(function(q){
+      var item = document.createElement('div');
+      item.className = 'sp-qitem';
+      item.dataset.spCmtId = q.id;   // reuses highlightPanelItem
+      var qDiv = document.createElement('div');
+      qDiv.className = 'sp-qitem-q';
+      qDiv.textContent = q.question;
+      item.appendChild(qDiv);
+      var current = answerFor(q.id);
+      if(q.choices && q.choices.length){
+        var row = document.createElement('div');
+        row.className = 'sp-qitem-choices';
+        q.choices.forEach(function(choice){
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = choice;
+          if(current && current.answer===choice) b.classList.add('selected');
+          b.addEventListener('click', function(e){
+            e.stopPropagation();
+            setAnswer(q.id, {answer: choice});
+            renderQuestions();
+            renderBadge();
+          });
+          row.appendChild(b);
+        });
+        item.appendChild(row);
+      }
+      var ta = document.createElement('textarea');
+      ta.placeholder = q.choices && q.choices.length ? 'Add a note (optional)' : 'Enter your answer';
+      ta.value = current ? (current.note || '') : '';
+      ta.addEventListener('click', function(e){ e.stopPropagation(); });
+      ta.addEventListener('change', function(){
+        setAnswer(q.id, q.choices && q.choices.length ? {note: ta.value} : {answer: ta.value});
+        renderBadge();
+      });
+      item.appendChild(ta);
+      if(current && current.answer){
+        var done = document.createElement('div');
+        done.className = 'sp-qitem-answered';
+        done.textContent = '✓ Answered';
+        item.appendChild(done);
+      }
+      item.addEventListener('click', function(){
+        var pin = document.querySelector('.sp-qpin[data-sp-q-id="'+cssEsc(q.id)+'"],.sp-qpin-svg[data-sp-q-id="'+cssEsc(q.id)+'"]');
+        if(pin) pin.scrollIntoView({behavior:'smooth', block:'center'});
+      });
+      panelQuestions.appendChild(item);
+    });
+  }
+
+  function init(){
+    comments = loadComments().map(normalizeComment);
+    comments.forEach(function(c){
+      c.targets.forEach(function(t){ t.anchored = anchorTarget(c, t); });
+    });
+    RESPONSES.forEach(function(r){ r.anchored = anchorResponse(r); });
+    // The text-range anchor for question pins mutates the DOM via splitText, so it must run
+    // after comments/responses are anchored (to avoid shifting the flat-map offsets).
+    answers = loadAnswers();
+    QUESTIONS.forEach(function(q){ q.anchored = anchorQuestion(q); });
+    refreshQuestionPins();
+    renderQuestions();
+    renderPanel();
+  }
+
+  // ---- anchoring / highlighting ----
+  // Locates the target within the visible text under root and returns the text node plus an
+  // in-node offset. Returns null if not found.
+  function locateText(root, target, contextBefore, contextAfter){
+    if(!root || !target) return null;
+    var map = buildFlatMap(root);
+    var text = map.text;
+    var occ = [], from = 0, p;
+    while((p = text.indexOf(target, from)) !== -1){ occ.push(p); from = p+1; }
+    if(occ.length===0) return null;
+    var chosen;
+    if(occ.length===1){
+      chosen = occ[0];
+    } else {
+      var scored = occ.map(function(o){
+        var before = text.slice(Math.max(0,o-40), o);
+        var after = text.slice(o+target.length, o+target.length+40);
+        var score = 0;
+        if(contextBefore && before.indexOf(contextBefore.slice(-20)) >= 0) score++;
+        if(contextAfter && after.indexOf(contextAfter.slice(0,20)) >= 0) score++;
+        return {o:o, score:score};
+      });
+      scored.sort(function(a,b){ return b.score-a.score; });
+      chosen = scored[0].o;
+    }
+    var nodeIdx = -1;
+    for(var i=0;i<map.offsets.length;i++){
+      var start = map.offsets[i], len = map.nodes[i].nodeValue.length;
+      if(chosen>=start && chosen<start+len){ nodeIdx = i; break; }
+    }
+    if(nodeIdx===-1) return null;
+    var node = map.nodes[nodeIdx];
+    var localStart = chosen - map.offsets[nodeIdx];
+    var maxLen = node.nodeValue.length - localStart;
+    var markLen = Math.min(target.length, maxLen);
+    if(markLen<=0) return null;
+    return {node:node, start:localStart, len:markLen};
+  }
+  // Wraps `mark` around loc's position; clicking it opens the matching panel item.
+  function wrapMark(loc, mark, panelItemId){
+    try{
+      var range = document.createRange();
+      range.setStart(loc.node, loc.start);
+      range.setEnd(loc.node, loc.start+loc.len);
+      try{
+        range.surroundContents(mark);
+        mark.addEventListener('click', function(ev){
+          ev.stopPropagation();
+          panel.classList.add('open');
+          highlightPanelItem(panelItemId);
+        });
+      }catch(e){ /* the range straddles an element boundary etc. The location was still found, so
+                    treat it as anchored but skip the visual highlight. */ }
+      return true;
+    }catch(e){ return false; }
+  }
+  function anchorTarget(c, t){
+    if(t.kind==='element') return anchorElementTarget(c, t);
+    if(t.kind==='insertion-point') return anchorInsertionTarget(c, t);
+    if(t.kind==='diagram-node') return anchorDiagramTarget(c, t);
+    if(t.kind==='document') return true;   // whole document: no mark added to the body
+    return anchorTextTarget(c, t);   // formerly the body of anchorComment
+  }
+  function anchorDiagramTarget(c, t){
+    var el = resolveDiagramNode(t.nodeId, t.nodeLabel);
+    if(!el) return false;
+    if(!svgHalo(el, c.id, c.status==='resolved')) return false;
+    el.addEventListener('click', function(ev){
+      if(picking) return;
+      ev.stopPropagation();
+      panel.classList.add('open');
+      highlightPanelItem(c.id);
+    });
+    return true;
+  }
+  function anchorElementTarget(c, t){
+    var el = resolveByPath(t.path, t.tag, t.nearText);
+    if(!el) return false;
+    el.classList.add('sp-mark-el');
+    el.setAttribute('data-sp-cmt-id', c.id);
+    if(c.targets.length>1) el.setAttribute('data-sp-badge', t.label);
+    el.addEventListener('click', function(ev){
+      if(picking) return;
+      ev.stopPropagation();
+      panel.classList.add('open');
+      highlightPanelItem(c.id);
+    });
+    return true;
+  }
+  function anchorInsertionTarget(c, t){
+    var after = t.afterPath ? resolveByPath(t.afterPath, t.afterTag, t.nearText) : null;
+    var before = (!after && t.beforePath) ? resolveByPath(t.beforePath, t.beforeTag, t.nearText) : null;
+    if(!after && !before) return false;
+    var markEl = document.createElement('span');
+    markEl.className = 'sp-insert-mark';
+    markEl.setAttribute('data-sp-cmt-id', c.id);
+    if(c.targets.length>1) markEl.setAttribute('data-sp-badge', t.label);
+    if(after && after.parentNode){
+      after.parentNode.insertBefore(markEl, after.nextSibling);
+    } else {
+      before.parentNode.insertBefore(markEl, before);
+    }
+    markEl.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      panel.classList.add('open');
+      highlightPanelItem(c.id);
+    });
+    return true;
+  }
+  function anchorTextTarget(c, t){
+    // With multiple targets, the 2nd+ target may belong to a different unit than the first, so
+    // prefer the target's own unit (if set) when resolving root.
+    var root = unitElement(t.unit || c.unit);
+    if(!root) return false;
+    var loc = locateText(root, t.selectedText, t.contextBefore, t.contextAfter);
+    if(!loc) return false;
+    // An HTML <mark> can't be wrapped around SVG text (it would break the rendering). The
+    // location was found, so treat it as anchored but skip the highlight.
+    if(insideSvg(loc.node)) return true;
+    var mark = document.createElement('mark');
+    mark.className = 'sp-mark' + (c.status==='resolved' ? ' sp-mark-resolved' : '');
+    mark.dataset.spCmtId = c.id;
+    if(c.targets.length>1) mark.dataset.spBadge = t.label;
+    mark.title = c.comment;
+    return wrapMark(loc, mark, c.id);
+  }
+  // Fixes a response's fixedText (post-fix text) in the body and marks it green.
+  function anchorResponse(r){
+    if(!r.fixedText) return false;
+    var root = (r.unit && unitElement(r.unit)) || document.body;
+    var loc = locateText(root, r.fixedText, r.contextBefore, r.contextAfter);
+    if(!loc) return false;
+    if(insideSvg(loc.node)) return true;   // skip highlight inside SVG, same reasoning as text-range
+    var mark = document.createElement('mark');
+    mark.className = 'sp-mark-fixed';
+    mark.dataset.spRespId = r.id;
+    mark.title = r.reply;
+    return wrapMark(loc, mark, r.id);
+  }
+  function updateMarkResolvedState(c){
+    document.querySelectorAll('mark.sp-mark[data-sp-cmt-id="'+cssEsc(c.id)+'"]').forEach(function(m){
+      m.classList.toggle('sp-mark-resolved', c.status==='resolved');
+    });
+    document.querySelectorAll('.sp-node-halo[data-sp-cmt-id="'+cssEsc(c.id)+'"]').forEach(function(h){
+      h.classList.toggle('sp-node-halo-resolved', c.status==='resolved');
+    });
+  }
+  function removeMarksFor(id){
+    document.querySelectorAll('mark.sp-mark[data-sp-cmt-id="'+cssEsc(id)+'"]').forEach(function(m){
+      var parent = m.parentNode;
+      parent.replaceChild(document.createTextNode(m.textContent), m);
+      if(parent.normalize) parent.normalize();
+    });
+    document.querySelectorAll('.sp-mark-el[data-sp-cmt-id="'+cssEsc(id)+'"]').forEach(function(el){
+      el.classList.remove('sp-mark-el');
+      el.removeAttribute('data-sp-cmt-id');
+      el.removeAttribute('data-sp-badge');
+    });
+    document.querySelectorAll('.sp-insert-mark[data-sp-cmt-id="'+cssEsc(id)+'"]').forEach(function(el){
+      el.parentNode.removeChild(el);
+    });
+    document.querySelectorAll('.sp-node-halo[data-sp-cmt-id="'+cssEsc(id)+'"]').forEach(function(el){
+      el.parentNode.removeChild(el);
+    });
+  }
+
+  // ---- responses (embedded in the HTML; not dependent on localStorage) ----
+  function responseFor(id){
+    return RESPONSES.filter(function(r){ return r.id===id; })[0] || null;
+  }
+  function actionLabel(action){
+    if(action==='partial') return 'Partially fixed';
+    if(action==='declined') return 'Declined';
+    if(action==='noted') return 'Acknowledged';
+    return 'Fixed';
+  }
+  function jumpToFixed(r){
+    var mark = document.querySelector('mark.sp-mark-fixed[data-sp-resp-id="'+cssEsc(r.id)+'"]');
+    if(mark){
+      mark.scrollIntoView({behavior:'smooth', block:'center'});
+    } else {
+      jumpToUnit(r.unit);
+    }
+  }
+  function buildResponseBlock(r){
+    var div = document.createElement('div');
+    div.className = 'sp-response';
+    var head = document.createElement('div');
+    head.className = 'sp-response-head';
+    var icon = document.createElement('span');
+    icon.textContent = '🤖 ';
+    head.appendChild(icon);
+    var actionBadge = document.createElement('span');
+    actionBadge.className = 'sp-response-action sp-action-' + (r.action || 'fixed');
+    actionBadge.textContent = actionLabel(r.action);
+    head.appendChild(actionBadge);
+    div.appendChild(head);
+    var reply = document.createElement('div');
+    reply.className = 'sp-response-reply';
+    reply.textContent = r.reply;
+    div.appendChild(reply);
+    div.addEventListener('click', function(e){
+      e.stopPropagation();
+      jumpToFixed(r);
+    });
+    return div;
+  }
+
+  // ---- panel ----
+  function renderBadge(){
+    badge.textContent = '💬 ' + comments.length + (QUESTIONS.length ? ' ❓' + QUESTIONS.filter(function(q){ var a=answerFor(q.id); return !(a&&a.answer); }).length : '');
+  }
+  function renderPanel(){
+    panelCount.textContent = comments.length;
+    panelList.innerHTML = '';
+    var sorted = comments.slice().sort(function(a,b){
+      var elA = unitElement(a.unit), elB = unitElement(b.unit);
+      if(elA && elB && elA !== elB){
+        return (elA.compareDocumentPosition(elB) & Node.DOCUMENT_POSITION_FOLLOWING) ? -1 : 1;
+      }
+      return 0;
+    });
+    sorted.forEach(function(c){
+      var item = document.createElement('div');
+      item.className = 'sp-item' + (c.status==='resolved' ? ' resolved' : '');
+      item.dataset.spCmtId = c.id;
+
+      var unitDiv = document.createElement('div');
+      unitDiv.className = 'sp-item-unit';
+      unitDiv.textContent = c.unitLabel || c.unit || '';
+      if(c.action && ACTION_LABEL[c.action]){
+        var actionSpan = document.createElement('span');
+        actionSpan.className = 'sp-item-action';
+        actionSpan.textContent = '['+ACTION_LABEL[c.action]+']';
+        unitDiv.appendChild(actionSpan);
+      }
+      item.appendChild(unitDiv);
+
+      if(c.targets.some(function(t){ return t.anchored===false; })){
+        var na = document.createElement('div');
+        na.className = 'sp-item-noanchor';
+        na.textContent = '⚠ Original text not found';
+        item.appendChild(na);
+      }
+
+      var excerptDiv = document.createElement('div');
+      excerptDiv.className = 'sp-item-excerpt';
+      excerptDiv.textContent = c.targets.map(function(t){
+        var head = c.targets.length>1 ? '①②③④⑤⑥⑦⑧⑨'.charAt((+t.label)-1)+' ' : '';
+        if(t.kind==='diagram-node') return head + '[diagram] ' + truncate(t.nodeLabel||t.nearText||t.nodeId, 24);
+        if(t.kind==='element') return head + '[element] ' + truncate(t.nearText||t.tag, 24);
+        if(t.kind==='insertion-point') return head + '[position] near ' + truncate(t.nearText||'', 24);
+        if(t.kind==='document') return head + '[whole doc]';
+        return head + '"' + truncate(t.selectedText, 24) + '"';
+      }).join(' / ');
+      item.appendChild(excerptDiv);
+
+      if(c.id === editingId){
+        var editTa = document.createElement('textarea');
+        editTa.className = 'sp-edit-textarea';
+        editTa.value = c.comment;
+        editTa.dataset.spCmtId = c.id;
+        editTa.addEventListener('click', function(e){ e.stopPropagation(); });
+        item.appendChild(editTa);
+
+        var editActions = document.createElement('div');
+        editActions.className = 'sp-item-actions';
+        var cancelEditBtn = document.createElement('button');
+        cancelEditBtn.type = 'button';
+        cancelEditBtn.textContent = 'Cancel';
+        cancelEditBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          editingId = null;
+          renderPanel();
+        });
+        var saveEditBtn = document.createElement('button');
+        saveEditBtn.type = 'button';
+        saveEditBtn.textContent = 'Save';
+        saveEditBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          commitEdit(c, editTa);
+        });
+        editActions.appendChild(cancelEditBtn);
+        editActions.appendChild(saveEditBtn);
+        item.appendChild(editActions);
+      } else {
+        var commentDiv = document.createElement('div');
+        commentDiv.className = 'sp-item-comment';
+        commentDiv.textContent = c.comment;
+        item.appendChild(commentDiv);
+
+        var actions = document.createElement('div');
+        actions.className = 'sp-item-actions';
+        var editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          editingId = c.id;
+          renderPanel();
+          focusEditTextarea();
+        });
+        var resolveBtn = document.createElement('button');
+        resolveBtn.type = 'button';
+        resolveBtn.textContent = c.status==='resolved' ? 'Reopen' : 'Resolve';
+        resolveBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          c.status = c.status==='resolved' ? 'open' : 'resolved';
+          updateMarkResolvedState(c);
+          saveComments(comments);
+          renderPanel();
+        });
+        var delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.textContent = 'Delete';
+        delBtn.addEventListener('click', function(e){
+          e.stopPropagation();
+          removeMarksFor(c.id);
+          comments = comments.filter(function(x){ return x.id!==c.id; });
+          saveComments(comments);
+          renderPanel();
+        });
+        actions.appendChild(editBtn);
+        actions.appendChild(resolveBtn);
+        actions.appendChild(delBtn);
+        item.appendChild(actions);
+      }
+
+      var resp = responseFor(c.id);
+      if(resp){
+        item.appendChild(buildResponseBlock(resp));
+      }
+
+      item.addEventListener('click', function(){
+        if(c.id === editingId) return;
+        if(c.unit){
+          jumpToUnit(c.unit);
+        } else if(c.targets[0] && c.targets[0].kind==='document'){
+          window.scrollTo({top:0, behavior:'smooth'});
+        } else {
+          var anchorEl = document.querySelector('[data-sp-cmt-id="'+cssEsc(c.id)+'"]');
+          if(anchorEl) anchorEl.scrollIntoView({behavior:'smooth', block:'center'});
+        }
+      });
+      panelList.appendChild(item);
+    });
+    // A response with no matching comment in localStorage (e.g. opened in a different browser)
+    // is shown as its own item at the end of the list.
+    var known = {};
+    comments.forEach(function(c){ known[c.id] = true; });
+    RESPONSES.forEach(function(r){
+      if(known[r.id]) return;
+      var item = document.createElement('div');
+      item.className = 'sp-item sp-item-response-only';
+      item.dataset.spCmtId = r.id;
+      var unitDiv = document.createElement('div');
+      unitDiv.className = 'sp-item-unit';
+      unitDiv.textContent = '(no source comment)';
+      item.appendChild(unitDiv);
+      item.appendChild(buildResponseBlock(r));
+      item.addEventListener('click', function(){ jumpToFixed(r); });
+      panelList.appendChild(item);
+    });
+    renderBadge();
+  }
+  function focusEditTextarea(){
+    var ta = panelList.querySelector('.sp-edit-textarea');
+    if(!ta) return;
+    ta.focus();
+    var len = ta.value.length;
+    try{ ta.setSelectionRange(len, len); }catch(e){ /* unsupported in some browsers */ }
+  }
+  function commitEdit(c, textarea){
+    var val = textarea.value.trim();
+    if(!val) return;
+    c.comment = val;
+    document.querySelectorAll('mark.sp-mark[data-sp-cmt-id="'+cssEsc(c.id)+'"]').forEach(function(m){
+      m.title = c.comment;
+    });
+    saveComments(comments);
+    editingId = null;
+    renderPanel();
+  }
+  function highlightPanelItem(id){
+    // Includes panelQuestions (question list), not just panelList (comment list). Question items
+    // live in panelQuestions, a sibling of panelList, so panelList.querySelector alone won't find them.
+    var el = panel.querySelector('[data-sp-cmt-id="'+cssEsc(id)+'"]');
+    if(el){
+      el.scrollIntoView({block:'center'});
+      el.style.outline = '2px solid var(--sp-accent, #0f766e)';
+      setTimeout(function(){ el.style.outline=''; }, 1500);
+    }
+  }
+
+  // ---- select-to-comment flow ----
+  function hideSelectBtn(){ selectBtn.style.display = 'none'; }
+  function showSelectBtn(range){
+    var rect = range.getBoundingClientRect();
+    selectBtn.style.left = Math.min(window.innerWidth-140, Math.max(4, rect.right)) + 'px';
+    selectBtn.style.top = Math.max(4, rect.top-36) + 'px';
+    selectBtn.style.display = 'block';
+  }
+
+  // ---- verb palette (move / insert / delete / shorten / keep) ----
+  function setAction(action){
+    pendingAction = (pendingAction===action) ? null : action;   // clicking again clears it
+    Array.prototype.forEach.call(popupPalette.querySelectorAll('button'), function(b){
+      b.classList.toggle('active', b.getAttribute('data-sp-action')===pendingAction);
+    });
+    updateGuide();
+  }
+  function updateGuide(){
+    var g = '';
+    if(pendingAction==='move'){
+      if(pendingTargets.length<1) g = '① Select what to move (text selection or e key)';
+      else if(pendingTargets.length<2) g = '② Select the destination (press e, then click near an element’s top/bottom edge)';
+      else g = 'Moving ① to ②. Add a note if needed';
+    } else if(pendingAction==='insert'){
+      g = pendingTargets.length<1 ? 'Select the insertion point (press e, then click near an element’s edge)' : 'Enter what to insert';
+    } else if(pendingAction){
+      g = ACTION_LABEL[pendingAction] + ': select a target and save';
+    }
+    popupGuide.textContent = g;
+  }
+  Array.prototype.forEach.call(popupPalette.querySelectorAll('button'), function(b){
+    b.addEventListener('click', function(){ setAction(b.getAttribute('data-sp-action')); });
+  });
+
+  // ---- pendingTargets (multiple targets) and chip display ----
+  function addPendingTarget(unit, unitLabel, target){
+    target.label = String(pendingTargets.length + 1);
+    pendingTargets.push({unit:unit, unitLabel:unitLabel, target:target});
+    renderChips();
+    updateGuide();
+  }
+  function chipText(t){
+    var mark = '①②③④⑤⑥⑦⑧⑨'.charAt((+t.label)-1) || t.label;
+    if(t.kind==='diagram-node') return mark+' [diagram] '+truncate(t.nodeLabel||t.nearText||t.nodeId,20);
+    if(t.kind==='element') return mark+' [element] '+truncate(t.nearText||t.tag,20);
+    if(t.kind==='insertion-point') return mark+' [position] near '+truncate(t.nearText||'',20);
+    if(t.kind==='document') return mark+' 📄 whole document';
+    return mark+' "'+truncate(t.selectedText,20)+'"';
+  }
+  function renderChips(){
+    popupChips.innerHTML = '';
+    pendingTargets.forEach(function(pt){
+      var chip = document.createElement('span');
+      chip.className = 'sp-chip';
+      chip.textContent = chipText(pt.target);
+      popupChips.appendChild(chip);
+    });
+  }
+
+  function closePopup(){
+    popup.style.display = 'none';
+    popup.style.visibility = '';
+    hideSelectBtn();
+    popupText.value = '';
+    pendingSelection = null;
+    pendingTargets = [];
+    renderChips();
+    pendingAction = null;
+    Array.prototype.forEach.call(popupPalette.querySelectorAll('button'), function(b){
+      b.classList.remove('active');
+    });
+    updateGuide();
+    popupOpen = false;
+    window.getSelection().removeAllRanges();
+  }
+  function showPopup(anchorRect){
+    var rect = anchorRect || selectBtn.getBoundingClientRect();
+    popup.style.left = Math.min(window.innerWidth-300, Math.max(4, rect.left)) + 'px';
+    popup.style.top = Math.min(window.innerHeight-160, Math.max(4, rect.bottom+6)) + 'px';
+    popup.style.display = 'block';
+    popup.style.visibility = '';
+    popupOpen = true;
+    hideSelectBtn();
+    popupText.value = '';
+    popupText.focus();
+  }
+
+  document.addEventListener('mouseup', function(e){
+    if(e.target.closest && e.target.closest('#spSelectBtn,#spPopup,#spPanel,#spBadge,#spJsonModal')) return;
+    setTimeout(function(){
+      var sel = window.getSelection();
+      var text = sel && sel.toString();
+      if(!text || !text.trim() || sel.rangeCount===0){ if(!popupOpen) hideSelectBtn(); return; }
+      var range = sel.getRangeAt(0);
+      var container = range.startContainer.nodeType===1 ? range.startContainer : range.startContainer.parentElement;
+      var info = unitInfoFor(container);
+      if(!info){ if(!popupOpen) hideSelectBtn(); return; }
+      var map = buildFlatMap(info.el);
+      var startFlat = flatOffset(map, range.startContainer, range.startOffset);
+      var endFlat = flatOffset(map, range.endContainer, range.endOffset);
+      var contextBefore = '', contextAfter = '';
+      if(startFlat>=0 && endFlat>=0){
+        contextBefore = map.text.slice(Math.max(0,startFlat-40), startFlat);
+        contextAfter = map.text.slice(endFlat, endFlat+40);
+      }
+      if(popupOpen){
+        // a text selection made while the popup is open is added directly as a target,
+        // skipping the selectBtn step
+        addPendingTarget(info.unit, info.unitLabel, {
+          kind:'text-range', selectedText:text, contextBefore:contextBefore, contextAfter:contextAfter
+        });
+        window.getSelection().removeAllRanges();
+        return;
+      }
+      pendingSelection = {unit:info.unit, unitLabel:info.unitLabel, selectedText:text, contextBefore:contextBefore, contextAfter:contextAfter};
+      showSelectBtn(range);
+    }, 0);
+  });
+
+  selectBtn.addEventListener('mousedown', function(e){ e.preventDefault(); });
+  selectBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    if(!pendingSelection) return;
+    var ps = pendingSelection;
+    pendingSelection = null;
+    addPendingTarget(ps.unit, ps.unitLabel, {
+      kind:'text-range', selectedText:ps.selectedText, contextBefore:ps.contextBefore, contextAfter:ps.contextAfter
+    });
+    showPopup();
+  });
+  popupAddTarget.addEventListener('click', function(){
+    // 'e' can't be typed while the textarea has focus, so blur it and show a temporary hint
+    // ("select body text, or press e to pick an element").
+    popupText.blur();
+    clearTimeout(addTargetHintTimer);
+    pickHint.textContent = 'Select text in the body, or press e to pick an element';
+    pickHint.style.display = 'block';
+    addTargetHintTimer = setTimeout(function(){
+      pickHint.style.display = 'none';
+      pickHint.textContent = PICK_HINT_DEFAULT;
+    }, 2200);
+  });
+  popupSave.addEventListener('click', function(){
+    var val = popupText.value.trim();
+    if(!val && !pendingAction){ closePopup(); return; }
+    if(pendingAction && pendingTargets.length===0){
+      popupGuide.textContent = 'Select a target (text selection or e key)';
+      return;   // keep it open, waiting for a selection
+    }
+    if(pendingAction==='move' && pendingTargets.length<2){
+      popupGuide.textContent = '② Select the destination';
+      return;   // keep it open, waiting for the destination
+    }
+    if(pendingTargets.length===0){ closePopup(); return; }
+    if(!val){
+      var marks = '①②③④⑤⑥⑦⑧⑨';
+      if(pendingAction==='move' && pendingTargets.length>=2) val = '[Move] '+marks[0]+' to '+marks[1];
+      else val = '['+ACTION_LABEL[pendingAction]+']';
+    }
+    if(pendingAction==='move' && pendingTargets.length>=2){
+      pendingTargets[0].target.role = 'source';
+      pendingTargets[1].target.role = 'destination';
+    }
+    var c = {
+      id: 'c-' + randomId8(),
+      unit: pendingTargets[0].unit,
+      unitLabel: pendingTargets[0].unitLabel,
+      targets: pendingTargets.map(function(pt){
+        // A text-range target can only be located within the unit it belongs to, so store the
+        // target's own unit on itself in case a non-first target belongs to a different unit.
+        if(pt.target.kind==='text-range') pt.target.unit = pt.unit;
+        return pt.target;
+      }),
+      action: pendingAction || undefined,
+      comment: val,
+      status: 'open',
+      createdAt: new Date().toISOString()
+    };
+    comments.push(c);
+    c.targets.forEach(function(t){ t.anchored = anchorTarget(c, t); });
+    saveComments(comments);
+    renderPanel();
+    closePopup();
+  });
+  popupCancel.addEventListener('click', function(){ closePopup(); });
+
+  badge.addEventListener('click', function(){ panel.classList.toggle('open'); });
+  panelClose.addEventListener('click', function(){ panel.classList.remove('open'); });
+
+  // ---- JSON view / copy modal ----
+  function isJsonModalOpen(){ return jsonModal.classList.contains('open'); }
+  // Even if the JSON alone is pasted into a fresh session, work should still be able to proceed,
+  // so a self-describing header goes on top. _howto invokes the skill, _rules prevents
+  // misreading even where the skill isn't installed, and sourceHtml identifies the target file
+  // (all three together make it self-contained).
+  var HANDOFF_HOWTO =
+    'This is human review feedback exported by samepage. Treat it as a work order for applying ' +
+    'changes. If the "samepage" skill is available in this environment, invoke it and follow ' +
+    'SKILL.md’s sections on the JSON contract and on replying to comments. If it is not ' +
+    'available, proceed using _rules alone.';
+  var HANDOFF_RULES = [
+    'Fix the original source, not this HTML. If sourceHtml was generated from another source ' +
+      '(e.g. Markdown), edit that source instead — direct edits to the HTML are lost on the ' +
+      'next regeneration.',
+    'Locate the target using selectedText. If it matches more than once, disambiguate using the ' +
+      'end of contextBefore and the start of contextAfter.',
+    'Markup syntax (e.g. Markdown **bold**, links) is stripped when rendering to HTML, so ' +
+      'selectedText may not appear verbatim in the original source. Search again with the ' +
+      'formatting removed.',
+    'anchored:false means the original text could not be found. Don’t discard it — infer ' +
+      'the intended fix from unitLabel / comment / targets[].nearText, apply it, and clearly state ' +
+      'that it was inferred.',
+    'Do not modify comments with status:"resolved".',
+    'If action (move/insert/delete/shorten/keep) has a value, it is authoritative even if the ' +
+      'comment text reads like a template. action:"keep" is an explicit approval — never undo it.',
+    'When targets has 2+ entries with a role, move the content of the role:"source" target to the ' +
+      'position of the role:"destination" target.',
+    'targets[].kind has five forms: text-range = search body text; element = a path ' +
+      '(nth-of-type chain), falling back to tag + nearText if broken; insertion-point = the ' +
+      'position right after the element at afterPath (beforePath is for cross-checking / ' +
+      'fallback); diagram-node = a node inside an SVG diagram, where nodeId is the same stable id ' +
+      'as data-sp-node in the original source (the IR / diagram definition that generated the ' +
+      'SVG) — fix that source, not the HTML; document = a whole-document remark with no ' +
+      'specific location, to be treated as a structural/tone/policy-level instruction.',
+    'The top-level selectedText / contextBefore / contextAfter / anchored fields are a duplicate ' +
+      'of the comment’s first text-range target (kept for backward compatibility). They are ' +
+      'null for comments with no text-range target.',
+    'answers holds the human’s responses to question pins (❓) in the body. Match them by ' +
+      'questionId and treat them as additional instructions. Once fixes are applied, build a ' +
+      'responses JSON (id / reply / action / fixedText) and inject it back via samepage’s ' +
+      '--responses flag so it reaches sourceHtml. Reply to every comment, even ones left ' +
+      'unchanged, using action:"declined" or "noted".'
+  ];
+  function buildJson(){
+    return JSON.stringify({
+      _howto: HANDOFF_HOWTO,
+      _skill: 'samepage',
+      _rules: HANDOFF_RULES,
+      doc: DOC_ID,
+      sourceHtml: CFG.sourcePath || null,
+      generatedAt: new Date().toISOString(),
+      answers: answers.filter(function(a){ return a.answer || a.note; }),
+      comments: comments.map(function(c){
+        var tr = firstTextRange(c);
+        return {
+          id: c.id,
+          unit: c.unit,
+          unitLabel: c.unitLabel,
+          targets: c.targets.map(function(t){
+            var o = {label:t.label, kind:t.kind, anchored:t.anchored!==false};
+            if(t.role) o.role = t.role;
+            if(t.kind==='text-range'){
+              o.selectedText=t.selectedText; o.contextBefore=t.contextBefore; o.contextAfter=t.contextAfter;
+            } else if(t.kind==='diagram-node'){
+              o.nodeId=t.nodeId; o.nodeLabel=t.nodeLabel||null; o.nearText=t.nearText||null;
+            } else if(t.kind==='element'){
+              o.path=t.path; o.tag=t.tag; o.nearText=t.nearText;
+            } else if(t.kind==='insertion-point'){
+              o.afterPath=t.afterPath; o.beforePath=t.beforePath; o.nearText=t.nearText;
+              o.afterTag=t.afterTag; o.beforeTag=t.beforeTag;
+            }
+            return o;
+          }),
+          action: c.action || null,
+          comment: c.comment,
+          status: c.status,
+          anchored: tr ? tr.anchored !== false : (c.targets[0].anchored !== false),
+          selectedText: tr ? tr.selectedText : null,
+          contextBefore: tr ? tr.contextBefore : null,
+          contextAfter: tr ? tr.contextAfter : null,
+          createdAt: c.createdAt
+        };
+      })
+    }, null, 2);
+  }
+  function openJsonModal(){
+    var hasAnswers = answers.some(function(a){ return a.answer || a.note; });
+    if(comments.length===0 && !hasAnswers){
+      jsonText.value = 'No comments yet';
+    } else {
+      jsonText.value = buildJson();
+    }
+    jsonModal.classList.add('open');
+    jsonCopyBtn.textContent = 'Copy';
+  }
+  function closeJsonModal(){
+    jsonModal.classList.remove('open');
+  }
+  jsonBtn.addEventListener('click', openJsonModal);
+  jsonCloseBtn.addEventListener('click', closeJsonModal);
+  jsonOverlay.addEventListener('click', closeJsonModal);
+  // Shared by the modal's Copy button, the panel's Copy JSON button and the 'j' shortcut.
+  // The execCommand fallback copies from a throwaway off-screen textarea rather than #spJsonText:
+  // the direct-copy paths run with the modal closed, and a display:none textarea can't be selected.
+  function copyJsonToClipboard(text, onDone){
+    function fallbackCopy(){
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand('copy'); }catch(e){}
+      document.body.removeChild(ta);
+      if(onDone) onDone();
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ if(onDone) onDone(); }).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  }
+  jsonCopyBtn.addEventListener('click', function(){
+    copyJsonToClipboard(jsonText.value, function(){
+      jsonCopyBtn.textContent = '✓ Copied';
+      setTimeout(function(){ jsonCopyBtn.textContent = 'Copy'; }, 1500);
+    });
+  });
+  // Copy the export JSON straight to the clipboard, without requiring the modal to be opened
+  // first. Shared by the panel's Copy JSON button and the 'j' shortcut. copied===false means
+  // there was nothing to copy yet.
+  function copyJsonDirect(onDone){
+    var hasAnswers = answers.some(function(a){ return a.answer || a.note; });
+    if(comments.length===0 && !hasAnswers){
+      if(onDone) onDone(false);
+      return;
+    }
+    copyJsonToClipboard(buildJson(), function(){
+      if(onDone) onDone(true);
+    });
+  }
+  var JSON_COPY_DIRECT_LABEL = jsonCopyDirectBtn.textContent;
+  var JSON_COPY_FLASH_MS = 1500;
+  var jsonCopyFlashTimer = null;
+  // Flash the result on both the badge and the panel's Copy JSON button, whichever route the copy
+  // came from: the open panel covers the badge, so a badge-only flash is invisible exactly when the
+  // panel is in use, and a button-only flash is invisible when the panel is closed.
+  function flashJsonCopied(copied){
+    jsonCopyDirectBtn.textContent = copied ? '✓ Copied' : 'No comments yet';
+    if(copied) badge.textContent = '✓ Copied';
+    clearTimeout(jsonCopyFlashTimer);   // a second copy restarts the flash instead of cutting it short
+    jsonCopyFlashTimer = setTimeout(function(){
+      jsonCopyDirectBtn.textContent = JSON_COPY_DIRECT_LABEL;
+      renderBadge();
+    }, JSON_COPY_FLASH_MS);
+  }
+  // 'j' keyboard shortcut.
+  function copyJsonShortcut(){
+    copyJsonDirect(flashJsonCopied);
+  }
+  jsonCopyDirectBtn.addEventListener('click', function(){
+    copyJsonDirect(flashJsonCopied);
+  });
+
+  // ---- whole-document comment (a remark that doesn't point at a specific spot) ----
+  docCommentBtn.addEventListener('click', function(){
+    var already = pendingTargets.some(function(pt){ return pt.target.kind==='document'; });
+    if(already){
+      popupGuide.textContent = 'A whole-document comment is already added';
+      setTimeout(updateGuide, 1500);
+      return;
+    }
+    addPendingTarget(null, 'Whole document', {kind:'document'});
+    if(!popupOpen){
+      var panelRect = panel.getBoundingClientRect();
+      showPopup({left: Math.max(4, panelRect.left - 296), bottom: 60});
+    }
+  });
+
+  // A click while there's an active text selection should not propagate to the host page's own
+  // click handlers (e.g. advancing slides). Prevents a misfire right after selecting text.
+  document.addEventListener('click', function(e){
+    if(picking) return;
+    if(e.target.closest && e.target.closest('#spSelectBtn,#spPopup,#spPanel,#spBadge,#spJsonModal')) return;
+    var sel = window.getSelection();
+    if(sel && sel.toString().length>0){
+      e.stopPropagation();
+    }
+  }, true);
+
+  // Enter confirms / Shift+Enter adds a newline / Escape cancels, for the new-comment textarea.
+  function handlePopupTextareaKey(e){
+    if(isImeComposing(e)) return;   // leave IME composition/cancellation keys to the IME
+    if(e.key==='Escape'){
+      e.preventDefault();
+      closePopup();
+      return;
+    }
+    if(e.key==='Enter' && !e.shiftKey){
+      e.preventDefault();
+      popupSave.click();
+    }
+  }
+  // Enter confirms / Shift+Enter adds a newline / Escape cancels, for the inline edit textarea
+  // (.sp-edit-textarea).
+  function handleEditTextareaKey(e){
+    if(isImeComposing(e)) return;   // leave IME composition/cancellation keys to the IME
+    if(e.key==='Escape'){
+      e.preventDefault();
+      editingId = null;
+      renderPanel();
+      return;
+    }
+    if(e.key==='Enter' && !e.shiftKey){
+      e.preventDefault();
+      var id = e.target.getAttribute('data-sp-cmt-id');
+      var c = comments.filter(function(x){ return x.id===id; })[0];
+      if(c) commitEdit(c, e.target);
+    }
+  }
+
+  // Suppress the host page's own keyboard navigation while the JSON modal is open or while
+  // typing into a text field. "c" toggles the panel, "j" opens the JSON modal, "a" opens the
+  // comment box for the current selection (all disabled while typing / while the JSON modal is open).
+  document.addEventListener('keydown', function(e){
+    if(isJsonModalOpen()){
+      e.stopPropagation();
+      if(e.key==='Escape'){ closeJsonModal(); }
+      return;
+    }
+    var tag = e.target && e.target.tagName;
+    if(tag==='TEXTAREA' || tag==='INPUT'){
+      e.stopPropagation();
+      if(e.target === popupText){
+        handlePopupTextareaKey(e);
+      } else if(e.target.className && e.target.className.indexOf('sp-edit-textarea') !== -1){
+        handleEditTextareaKey(e);
+      }
+      return;
+    }
+    if((e.key==='c' || e.key==='C') && !e.ctrlKey && !e.metaKey && !e.altKey){
+      panel.classList.toggle('open');
+      return;
+    }
+    if((e.key==='j' || e.key==='J') && !e.ctrlKey && !e.metaKey && !e.altKey){
+      copyJsonShortcut();
+      return;
+    }
+    if((e.key==='a' || e.key==='A') && !e.ctrlKey && !e.metaKey && !e.altKey){
+      if(pendingSelection){
+        e.preventDefault();   // prevents 'a' from landing in the textarea that gets focus
+        e.stopPropagation();
+        var ps = pendingSelection;
+        pendingSelection = null;
+        addPendingTarget(ps.unit, ps.unitLabel, {
+          kind:'text-range', selectedText:ps.selectedText, contextBefore:ps.contextBefore, contextAfter:ps.contextAfter
+        });
+        showPopup();
+      }
+      return;
+    }
+    if((e.key==='e' || e.key==='E') && !e.ctrlKey && !e.metaKey && !e.altKey){
+      e.preventDefault();
+      var wasOpen = popupOpen;
+      if(wasOpen) popup.style.visibility = 'hidden';   // hide the popup during picking; it would get in the way
+      var restorePopupVisibility = function(){ if(wasOpen) popup.style.visibility = ''; };
+      startPickMode(function(target, el, rect){
+        restorePopupVisibility();
+        var info = unitInfoFor(el);
+        var unit = info ? info.unit : null;
+        var unitLabel = info ? info.unitLabel : (target.kind==='document' ? 'Whole document' : '');
+        addPendingTarget(unit, unitLabel, target);
+        if(!wasOpen) showPopup(rect);
+      }, restorePopupVisibility);
+      return;
+    }
+  }, true);
+
+  init();
+})();
+</script>
+<!-- samepage:end -->
+</body>
+</html>

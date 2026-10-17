@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!-- Fictional sample content written for the samepage repository, used to build
+     docs/images/demo.gif. It describes no real product, project or organization. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Release notes: v0.1</title>
+<style>
+  :root{
+    --ink:#1f2430; --muted:#5b6472; --line:#e4e6ea; --bg:#f7f8fa; --accent:#3b6fd6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:48px 64px; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    line-height:1.6; max-width:1200px;
+  }
+  h1{font-size:30px; margin:0 0 4px 0; letter-spacing:-0.01em;}
+  .subtitle{color:var(--muted); font-size:15px; margin:0 0 28px 0;}
+  h2{font-size:18px; margin:28px 0 10px 0; color:var(--ink);}
+  p{margin:0 0 14px 0; font-size:15px;}
+  ul{margin:0 0 18px 0; padding-left:22px;}
+  li{margin-bottom:6px; font-size:15px;}
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:10px;
+    padding:28px 32px; box-shadow:0 1px 2px rgba(20,24,32,.04);
+  }
+  .diagram-wrap{margin:20px 0 8px 0; text-align:center;}
+  .diagram-caption{color:var(--muted); font-size:13px; margin-top:6px;}
+  .node-box{fill:#fff; stroke:#c7cbd3; stroke-width:1.5;}
+  .node-text{font-family:inherit; font-size:14px; fill:var(--ink); text-anchor:middle;}
+  .edge-path{stroke:#9aa1ad; stroke-width:1.5; fill:none; marker-end:url(#arrow);}
+  .edge-hit{stroke:transparent; stroke-width:14; fill:none;}
+</style>
+</head>
+<body>
+
+<h1>Release notes: v0.1</h1>
+<p class="subtitle">Published 2026-08-28 &middot; Internal engineering distribution</p>
+
+<div class="card">
+
+  <p id="intro">This release introduces the review layer described below, allowing a
+  document to move between an author and a reviewer without a separate comment
+  thread. The quarterly planning docs are the first users of this workflow, and
+  early feedback is already changing how we scope follow-up drafts.</p>
+
+  <p id="scope-p1">Version 0.1 ships with three building blocks: inline comments
+  anchored to a text selection or an element, a reverse question mechanism so the
+  author can ask the reviewer something directly, and a finalize step that strips
+  the review layer out of the document once every open comment is resolved.</p>
+
+  <p id="scope-p2">The pipeline below sketches how a document moves through the
+  system, from the raw HTML an author writes, through the review layer that gets
+  injected on top of it, to the finalized artifact that ships externally.</p>
+
+  <h2>Pipeline</h2>
+  <div class="diagram-wrap">
+    <svg width="640" height="150" viewBox="0 0 640 150">
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L9,3 z" fill="#9aa1ad"/>
+        </marker>
+      </defs>
+
+      <g data-sp-node="edge-1" data-sp-label="Author to Review layer">
+        <path class="edge-hit" d="M 160 75 L 240 75"/>
+        <path class="edge-path" d="M 160 75 L 240 75"/>
+      </g>
+      <g data-sp-node="edge-2" data-sp-label="Review layer to Final">
+        <path class="edge-hit" d="M 400 75 L 480 75"/>
+        <path class="edge-path" d="M 400 75 L 480 75"/>
+      </g>
+
+      <g data-sp-node="author" data-sp-label="Author draft">
+        <rect class="node-box" x="20" y="45" width="140" height="60" rx="8"/>
+        <text class="node-text" x="90" y="80">Author draft</text>
+      </g>
+      <g data-sp-node="review-layer" data-sp-label="Review layer">
+        <rect class="node-box" x="240" y="45" width="160" height="60" rx="8"/>
+        <text class="node-text" x="320" y="80">Review layer</text>
+      </g>
+      <g data-sp-node="final" data-sp-label="Finalized HTML">
+        <rect class="node-box" x="480" y="45" width="140" height="60" rx="8"/>
+        <text class="node-text" x="550" y="80">Finalized HTML</text>
+      </g>
+    </svg>
+    <div class="diagram-caption">Fig. 1 &mdash; a document's path from draft to publish</div>
+  </div>
+
+  <h2>What's included</h2>
+  <ul>
+    <li>Text-range and whole-element comments, including a picker for insertion points</li>
+    <li>An SVG diagram node picker, so feedback can point directly at a box in a diagram</li>
+    <li>A one-key JSON export (<code>j</code>) ready to paste back to an AI agent</li>
+  </ul>
+
+  <div data-sp-discussion style="margin-top:18px; padding:10px 14px; background:#fef3c7; border-radius:6px; font-size:13px; color:#7c5e10;">
+    Open question under discussion: should the "Review layer" step also emit a diff view? Not
+    decided yet &mdash; this note is removed when the document is finalized.
+  </div>
+
+</div>
+
+</body>
+</html>

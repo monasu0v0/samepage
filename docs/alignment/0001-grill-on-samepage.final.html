@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>grill-on-samepage の設計</title>
+<style>
+:root{
+  --sp-bg:#fbfdfc; --sp-fg:#1c2624; --sp-muted:#5b6c69;
+  --sp-accent:#0f766e; --sp-accent-dark:#0b5750; --sp-border:#d7e6e3;
+  --sp-kbd-bg:#eef2f1; --sp-kbd-border:#c3d3d0; --sp-banner-bg:#eef7f5;
+  --sp-banner-fg:#0b5750; --sp-amber:#b5790c; --sp-red:#b3261e;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--sp-bg); color:var(--sp-fg); line-height:1.7; font-size:16px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+a{color:var(--sp-accent-dark);}
+.sp-banner{background:var(--sp-banner-bg); color:var(--sp-banner-fg); text-align:center;
+  padding:.6rem 1rem; font-size:.85rem; border-bottom:1px solid var(--sp-border);}
+.sp-shell{max-width:920px; margin:0 auto; padding:0 1.25rem 5rem;}
+.sp-hero{padding:2.6rem 0 1rem; border-bottom:1px solid var(--sp-border);}
+.sp-hero .sp-eyebrow{font-size:.78rem; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--sp-muted); margin:0 0 .5rem;}
+.sp-hero h1{font-size:2rem; margin:0 0 .5rem; letter-spacing:-.01em;}
+.sp-hero p{margin:.35rem 0; color:var(--sp-muted);}
+.sp-meta{font-size:.85rem; color:var(--sp-muted); margin-top:1rem;}
+.sp-meta span{margin-right:1.2rem;}
+h2{font-size:1.4rem; margin:3rem 0 1rem; padding-top:.6rem;
+   border-top:1px solid var(--sp-border); scroll-margin-top:1rem;}
+h3{font-size:1.12rem; margin:2.2rem 0 .6rem; color:var(--sp-accent-dark); scroll-margin-top:1rem;}
+p{margin:.8rem 0;} ul,ol{margin:.6rem 0; padding-left:1.4rem;} li{margin:.35rem 0;}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--sp-kbd-bg); border:1px solid var(--sp-kbd-border);
+  border-radius:4px; padding:.1rem .35rem; font-size:.88em;}
+pre{background:#1e293b; color:#e2e8f0; border-radius:8px; padding:1rem 1.1rem;
+  overflow-x:auto; font-size:.86rem; line-height:1.55;}
+pre code{background:transparent; border:none; padding:0; color:inherit;}
+.table-wrap{overflow-x:auto; margin:1rem 0; border:1px solid var(--sp-border); border-radius:8px;}
+table{border-collapse:collapse; width:100%; font-size:.9rem;}
+th,td{padding:.6rem .8rem; border-bottom:1px solid var(--sp-border);
+  text-align:left; vertical-align:top;}
+thead th{background:#f1f8f6; color:var(--sp-accent-dark); font-weight:600;}
+tbody tr:last-child td{border-bottom:none;}
+tbody td:first-child{font-weight:600; color:var(--sp-accent-dark); white-space:nowrap;}
+td.sp-v{font-weight:700; color:#0b5750; white-space:nowrap;}
+.sp-discussion{background:#f6f4fb; border:1px dashed #9b8fc4; padding:1rem 1.15rem;
+  margin:1.4rem 0; border-radius:8px; font-size:.93rem;}
+.sp-discussion h3{margin-top:0; color:#5b4b96;}
+.sp-tree-wrap{margin:1.4rem 0 .6rem;}
+.sp-tree-svg{display:block; max-width:100%; height:auto;}
+.sp-tree-svg a [data-sp-node]{cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="sp-banner">0001-grill-on-samepage.md から生成 — 編集は .md 側に対して行い、再生成してください。</div>
+<div class="sp-shell">
+<header class="sp-hero">
+  <p class="sp-eyebrow">Alignment 0001</p>
+  <h1>grill-on-samepage の設計</h1>
+  <p>grilling の面接ループを samepage 上で回し、合意した文書をプロジェクトの SSOT として運用する機能。</p>
+  <p class="sp-meta"><span>状態 合意済み</span><span>合意日 2026-08-30</span><span>ブランチ feature/grill-on-samepage</span><span>決定 15 件</span></p>
+</header>
+<article class="sp-article"><h2 id="0">0. この文書の位置づけ</h2>
+<p>これは <strong>合意ドキュメント</strong> です。この文書の上で質問に答え、コメントを付け、合意に達したら <code>--finalize</code> で公開用 HTML を切り出します。2026-08-30 に合意が成立し、以降この文書が本機能の SSOT です。</p>
+<p>この文書自体が本機能の最初のドッグフーディングでした。5 ラウンド・16 問・コメント 3 件で合意に至り、その過程で拾った不便がそのまま決定 D-5・D-7・D-14 と、SKILL.md への要求（確定した決定を取り消す導線）になっています。</p>
+<h2 id="1">1. 目的</h2>
+<p><a href="https://github.com/mattpocock/skills">mattpocock/skills</a> の <code>grilling</code>（設計を詰める面接ループ）は、ターミナル上の会話で回ります。そのため <strong>合意の実体が会話の中にしか残りません</strong>。<code>grill-with-docs</code> は用語集と ADR をファイルに落としますが、2026-08-30 に確認した時点では、そのドキュメント自身が最大の未解決課題として「それ以外の決定はどこへ行った？ → 会話の中だけ」を挙げていました。</p>
+<p>本機能は、この面接ループのインターフェースを samepage の HTML に移します。狙いは 3 つです。</p>
+<ol>
+<li><strong>合意が文書として残る。</strong> 質問も回答も、決定も未決も、1 つの HTML の上にある。</li>
+<li><strong>合意点を名指しでコメントできる。</strong> 「この決定のこの部分が引っかかる」を、文章ではなく位置で指せる。</li>
+<li><strong>ズレたら同じ場所に戻れる。</strong> 実装中に認識のズレが出たら、SSOT に質問ピンを打ち直して再合意する。</li>
+</ol>
+<h2 id="2-design-tree">2. design tree</h2>
+<div class="sp-tree-wrap"><svg class="sp-tree-svg" viewBox="0 0 966 502" role="img" aria-label="design tree">
+  <defs>
+    <marker id="sp-ar-0001-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/></marker>
+    <marker id="sp-ar-0001-dep" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8fa5a1"/></marker>
+  </defs>
+  <line x1="91" y1="72" x2="91" y2="142" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <line x1="91" y1="202" x2="189" y2="272" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <line x1="189" y1="332" x2="483" y2="402" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <line x1="91" y1="202" x2="385" y2="272" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <line x1="91" y1="72" x2="287" y2="142" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <line x1="287" y1="202" x2="581" y2="272" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <line x1="287" y1="72" x2="483" y2="142" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <line x1="483" y1="202" x2="777" y2="272" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <line x1="679" y1="72" x2="679" y2="142" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <line x1="679" y1="72" x2="875" y2="142" stroke="#0f766e" stroke-width="2" marker-end="url(#sp-ar-0001-ok)"/>
+  <a href="#d1"><g><rect x="0" y="16" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="40"><tspan x="91" font-size="12" fill="#0f2a28">D-1 合意ドキュメントの種類</tspan><tspan x="91" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ 単一 ALIGNMENT.md</tspan></text></g></a>
+  <a href="#d5"><g><rect x="0" y="146" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="170"><tspan x="91" font-size="12" fill="#0f2a28">D-5 実装スコープ</tspan><tspan x="91" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ ビルダーを作る</tspan></text></g></a>
+  <a href="#d10"><g><rect x="98" y="276" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="300"><tspan x="189" font-size="12" fill="#0f2a28">D-10 design tree の記法</tspan><tspan x="189" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ 入れ子の箇条書き</tspan></text></g></a>
+  <a href="#d13"><g><rect x="392" y="406" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="430"><tspan x="483" font-size="12" fill="#0f2a28">D-13 記法の具体</tspan><tspan x="483" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ 規約 5 つを採用</tspan></text></g></a>
+  <a href="#d12"><g><rect x="294" y="276" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="300"><tspan x="385" font-size="12" fill="#0f2a28">D-12 markdown 依存の扱い</tspan><tspan x="385" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ 未宣言 + CI で検証</tspan></text></g></a>
+  <a href="#d6"><g><rect x="196" y="146" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="170"><tspan x="287" font-size="12" fill="#0f2a28">D-6 セッション横断の一貫性</tspan><tspan x="287" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ INDEX.md を置く</tspan></text></g></a>
+  <a href="#d11"><g><rect x="490" y="276" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="300"><tspan x="581" font-size="12" fill="#0f2a28">D-11 INDEX.md の生成</tspan><tspan x="581" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ ビルダーが生成</tspan></text></g></a>
+  <a href="#d2"><g><rect x="196" y="16" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="40"><tspan x="287" font-size="12" fill="#0f2a28">D-2 grilling との関係</tspan><tspan x="287" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ 独立</tspan></text></g></a>
+  <a href="#d7"><g><rect x="392" y="146" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="170"><tspan x="483" font-size="12" fill="#0f2a28">D-7 質問の提示チャネル</tspan><tspan x="483" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ 材料は本文 / 問いはピン</tspan></text></g></a>
+  <a href="#d14"><g><rect x="686" y="276" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="300"><tspan x="777" font-size="12" fill="#0f2a28">D-14 スクロール挙動の適用範…</tspan><tspan x="777" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ 全部中央揃え</tspan></text></g></a>
+  <a href="#d3"><g><rect x="392" y="16" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="40"><tspan x="483" font-size="12" fill="#0f2a28">D-3 スキルの配布形態</tspan><tspan x="483" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ プラグイン形式</tspan></text></g></a>
+  <a href="#d4"><g><rect x="588" y="16" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="40"><tspan x="679" font-size="12" fill="#0f2a28">D-4 合意ゲートの判定</tspan><tspan x="679" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ 機械 + 人間の両方</tspan></text></g></a>
+  <a href="#d8"><g><rect x="588" y="146" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="170"><tspan x="679" font-size="12" fill="#0f2a28">D-8 ドリフト検知のトリガー</tspan><tspan x="679" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ その場 + 節目</tspan></text></g></a>
+  <a href="#d15"><g><rect x="784" y="146" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="170"><tspan x="875" font-size="12" fill="#0f2a28">D-15 合意ゲートの提示方法</tspan><tspan x="875" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ 文書冒頭に残件節</tspan></text></g></a>
+  <a href="#d9"><g><rect x="784" y="16" width="182" height="56" rx="10" ry="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" y="40"><tspan x="875" font-size="12" fill="#0f2a28">D-9 スキルの名前</tspan><tspan x="875" dy="17" font-size="11" fill="#0b5750" font-weight="700">✓ grill-on-samepage</tspan></text></g></a>
+  <g><rect x="0" y="474" width="14" height="14" rx="3" fill="#e6f5f3" stroke="#0f766e" stroke-width="2"/><text x="22" y="485" font-size="12" fill="#5b6c69" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">確定（15）</text></g>
+</svg></div>
+<h2 id="3">3. この文書で使う語</h2>
+<ul>
+<li><strong>design tree</strong> — 設計を「決定」のノードとその依存関係の木として捉えたもの。grilling から借用（§5）。</li>
+<li><strong>frontier</strong> — 前提となる決定がすべて片付いていて、いま推測なしに問える決定の集合。</li>
+<li><strong>ラウンド</strong> — frontier 全部を一度に問い、全部の回答を待つ 1 サイクル。1 ラウンド = <code>--questions</code> 1 回の注入。</li>
+<li><strong>ALIGNMENT 文書</strong> — 1 回の grilling セッションの決定・用語・未決事項を載せた文書。<code>docs/alignment/NNNN-slug.md</code> に置き、ビルダーで HTML を生成してレビューする。合意後は SSOT。</li>
+<li><strong>SSOT</strong> — Single Source of Truth。実装がそこからズレたら実装のほうが間違い、とみなす基準。</li>
+<li><strong>ドリフト</strong> — 実装が進むうちに、合意した内容と実際の作業が食い違っていくこと。</li>
+<li><strong>残件</strong> — 未回答の質問ピンと、<code>status: "open"</code> のコメントの合計。</li>
+<li><strong>取り消して再検討</strong> — 確定した決定の前提が新しい事実で崩れたとき、その決定を frontier に戻すこと。下流の決定も連動して開く。</li>
+</ul>
+<h2 id="4">4. 決定</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>決定</th>
+<th>結論</th>
+<th>根拠と却下理由</th>
+</tr>
+</thead>
+<tbody>
+<tr id="d1">
+<td>D-1<br>合意ドキュメントの種類</td>
+<td>単一 ALIGNMENT.md<br>（セッションごとに 1 ファイル）</td>
+<td>samepage は「1 HTML = 1 レビュー層 = 1 export JSON」の粒度でできており、SSOT をこの粒度に合わせると逆写像が自明になる。未決事項と検討中の選択肢を <code>data-sp-discussion</code> で本文に同居させられる点も A だけの性質。<br><strong>却下:</strong> B（CONTEXT.md + ADR）は ADR の 3 条件ゲートを通らない決定がこぼれ、本機能の動機を潰す。C（併用）は SSOT が 2 箇所に分かれた時点で SSOT ではない。A'（PJ に 1 ファイル）は肥大化する。<br><strong>波及:</strong> 「PJ の SSOT」の意味が文書の集合になった → D-6。</td>
+</tr>
+<tr id="d2">
+<td>D-2<br>grilling との関係</td>
+<td>独立して完結<br>（出典は明記）</td>
+<td>質問の提示形式が本家と根本的に違う（番号付きリスト → 質問ピン + <code>choices</code>）ため、どのみち手順を書き直す。加えて、他スキルへの依存は samepage 側から制御できないロード経路を持ち込むので、「クローンすれば動く」という保証を優先した（2026-08-30 に確認した時点の本家ドキュメントにも、スキルから別スキルを呼んでも確実にロードされない旨の記載があった。その後の状況は未確認）。<br><strong>却下:</strong> 依存はロード失敗の穴を塞げず「クローンすれば動く」が崩れる。ハイブリッドは存在検知ができず不具合の切り分けが難しい。<br><strong>条件:</strong> design tree / frontier / ラウンド / 事実と決定の分離は grilling 由来と明記する。権利面は §5 で確認済み。</td>
+</tr>
+<tr id="d3">
+<td>D-3<br>スキルの配布形態</td>
+<td>プラグイン形式<br>（skills-dir）</td>
+<td><strong>ラウンド 1 の決定を取り消して再検討した。</strong> 当初「サブディレクトリ + シンボリックリンク」を選んだ根拠は「プラグイン化は導入の敷居が上がる」だったが、§5 の実験でこれが誤りと判明した。スキルディレクトリ配下に <code>.claude-plugin/plugin.json</code> があるフォルダは <code>&lt;name&gt;@skills-dir</code> として読み込まれ、<strong>導入コマンドは 1 文字も変わらない</strong>。<code>${CLAUDE_PLUGIN_ROOT}</code> で <code>cli.py</code> を共有でき、シンボリックリンクも絶対パスも不要。<br><strong>却下:</strong> シンボリックリンクは全ユーザーに永続的に 1 手順を課したうえ、<code>${CLAUDE_SKILL_DIR}</code> のリンク解決という未検証の挙動に依存する。<br><strong>補足:</strong> ルートの <code>SKILL.md</code> を <code>skills/&lt;name&gt;/SKILL.md</code> へ移し、README にマルチエージェント対応プラグインとしての導入手順を明記する。</td>
+</tr>
+<tr id="d4">
+<td>D-4<br>合意ゲートの判定</td>
+<td>両方<br>（残件を機械が提示<br>→ 人間が明示合意）</td>
+<td>塞ぐべき失敗モードが 2 つあり、別の手段でしか塞げない。(1) 質問に答えきると AI が勝手に実装へ走り出す → 人間の明示確認でしか塞げない。(2) 未解決のまま finalize → 機械判定でしか塞げない。<br><strong>却下:</strong> 機械判定のみは「全部答えたが腹落ちしていない」を拾えない。人間の確認のみは残件を人間が数えることになる。<br><strong>波及:</strong> ゲートの判定条件がドリフト判定の裏返し → D-8。提示方法 → D-15。</td>
+</tr>
+<tr id="d5">
+<td>D-5<br>実装スコープ</td>
+<td>ビルダーを作る<br>（状態管理は入れない）</td>
+<td>ラウンド 1〜2 の実測で、design tree の SVG 手書きが最大のコストだった（約 150 行、ラウンドごとに色・ラベル・ノード・辺・レイアウトを全面的に組み直し）。加えてビルダーがないと D-1 で選んだ「ALIGNMENT.md が SSOT」がルール 1 の意味で成立しない。<br><strong>却下:</strong> 状態管理は状態が四重になり、samepage の「状態は HTML と JSON にしかない」を崩す。残件は export JSON の <code>answers</code> と <code>comments[].status</code> からその場で算出する。<br><strong>波及:</strong> 記法と依存の扱いが必要 → D-10、D-12。</td>
+</tr>
+<tr id="d6">
+<td>D-6<br>セッション横断の一貫性</td>
+<td>docs/alignment/<br>INDEX.md を置く</td>
+<td>D-1 で A を選んだ時点で PJ の SSOT は文書の集合になり、集合に目次がないと SSOT として参照できない。索引は決定 ID・タイトル・状態と横断用語集だけを持ち、本文を持たないので二重管理にならない。<br><strong>却下:</strong> 用語集だけ CONTEXT.md は書き込み先が 2 箇所になる。全部読むはセッション数に対して線形に増える。何もしないは当初の狙いを達成しない。<br><strong>波及:</strong> 手で書けば必ず腐る → D-11。</td>
+</tr>
+<tr id="d7">
+<td>D-7<br>質問の提示チャネル</td>
+<td>材料は本文<br>問いはピン</td>
+<td>ラウンド 1〜2 の実測で機能した。本文に材料が残るので合意後も「なぜそう決めたか」が SSOT に載り、ピンが短く保たれてパネルの一覧性が高い。<br><strong>却下:</strong> ピンに全部載せると表が入らず、合意後に材料が残らない。本文に質問節を足すと二重管理になる。ピンをやめると残件を機械が数えられず D-4 が成立しない。<br><strong>条件:</strong> ピンの飛び先は design tree ではなく、判断材料のある節にする。design tree のノードは該当節へのアンカーリンクにする。</td>
+</tr>
+<tr id="d8">
+<td>D-8<br>ドリフト検知のトリガー</td>
+<td>その場 + 節目<br>（両方）</td>
+<td>「気づいたズレ」と「気づかなかったズレ」は別の失敗モードで、それぞれ別の手段でしか塞げない。D-4 と同じ構造の判断。<br><strong>却下:</strong> 人間が言ったときだけでは、AI が気づいていても黙って進むことになる。<br><strong>保留:</strong> 「何をズレとみなすか」の基準は実装を回さないと書けないので、初版は緩め（決定を明示的に破るときだけ止まる）にして運用で締める。</td>
+</tr>
+<tr id="d9">
+<td>D-9<br>スキルの名前</td>
+<td>grill-on-samepage</td>
+<td>英語の慣用句が "be <em>on</em> the same page" で、samepage 自身のタグライン "Get on the same page with your AI" も on。<code>grill-with-docs</code> の with は「成果物も作る」の意味だが、本機能の samepage は成果物ではなく面接が行われる場なので on が実態に合う。§5 で挙げた「本家の派生物と誤解される」懸念も消える。</td>
+</tr>
+<tr id="d10">
+<td>D-10<br>design tree の記法</td>
+<td>入れ子の箇条書き<br>+ 規約</td>
+<td>Markdown ネイティブなので GitHub でそのまま木として読め、ビルダーが無くても人間が読める。状態と決定内容を行内の規約で持て、標準ライブラリだけでパースできる。<br><strong>却下:</strong> mermaid は <code>build_readme_html.py</code> に前例があるように見えるが、<strong>あれは自動生成ではなく SVG の座標もラベルも Python 側に手書き</strong>で、mermaid ソースとは二重管理。YAML は堅いが GitHub 上の可読性を失い、標準ライブラリにパーサがない。<br><strong>波及:</strong> 規約の具体 → D-13。</td>
+</tr>
+<tr id="d11">
+<td>D-11<br>INDEX.md の生成</td>
+<td>ビルダーが生成</td>
+<td>D-6 で INDEX.md を選んだ条件が「腐らないこと」だったので、ほぼ一択。<code>docs/alignment/*.md</code> を走査するだけで、D-10 の記法が決まれば実装は小さい。索引の更新忘れという失敗モードが構造的に消える。<br><strong>却下:</strong> AI が合意のたびに更新する案は「手で書けば必ず腐る」がそのまま当てはまる。<br><strong>条件:</strong> 人間の注記は各 ALIGNMENT 文書側に書く（INDEX.md は生成物）。</td>
+</tr>
+<tr id="d12">
+<td>D-12<br>markdown 依存の扱い</td>
+<td>未宣言のまま<br>+ CI で検証</td>
+<td>依存宣言を増やさないので README の「サードパーティ不要」を守れ、既存の <code>docs/</code> スクリプトと一貫する。CI に <code>markdown</code> を入れるジョブを 1 つ足せば、ビルダーが無検証になる問題も同時に解ける。<br><strong>却下:</strong> CI も回さない案は、SSOT を生成する経路が無検証のままになり D-1 と釣り合わない。optional extra はこのプロジェクト初の非空の依存宣言になり、<code>playwright</code> / <code>Pillow</code> の扱いとの一貫性問題を生む。自前変換は割に合わない。</td>
+</tr>
+<tr id="d13">
+<td>D-13<br>記法の具体</td>
+<td>規約 5 つを採用</td>
+<td>インデント 2 スペースで親子。<code>[ID]</code> は文書内で一意、登場順に採番し<strong>取り消した ID は再利用しない</strong>。フィールド区切りは <code>::</code> でタイトル / 状態 / 決定内容。状態は <code>確定</code> / <code>frontier</code> / <code>再検討</code> / <code>保留</code> の 4 語のみで、<code>確定</code> の行だけが 3 つ目のフィールドを持つ。複数の親を持つノードは主たる親の下に置き、子として <code>(依存) [ID]</code> を足す。<br><strong>却下:</strong> 絵文字案は対応表が必要になるだけで覚えることが減らず、検索しにくい。見出し案は木のインデントが使えず D-10 の理由が消える。<br><strong>注意:</strong> ビルダーのパーサ契約なので、後から変えると既存の ALIGNMENT 文書を全部書き直すことになる。</td>
+</tr>
+<tr id="d14">
+<td>D-14<br>スクロール挙動の適用範囲</td>
+<td>全部中央揃え</td>
+<td>ラウンド 3 のコメントを受けて質問ジャンプを上揃えに変更したが、D-14 で取り消しの判断となった。<code>samepage.js</code> は元の <code>block:'center'</code> のまま。<br><strong>経緯:</strong> 回答が以前のコメントと食い違ったため、D-8 の「AI がズレに気づいたらその場で止まる」に従って確認を挟み、「中央揃えでよい（以前の要望は撤回）」との回答を得て確定。<strong>これが D-8 の最初の実行例。</strong></td>
+</tr>
+<tr id="d15">
+<td>D-15<br>合意ゲートの提示方法</td>
+<td>文書冒頭に<br>「残件」節を<br>ビルダーが生成</td>
+<td>D-1 で「合意が文書として残る」を選んだ以上、合意の可否を決める材料も文書側にあるべき。ラウンドごとに再注入するので常に最新が載り、合意時点の残件ゼロが記録として残る。<br><strong>却下:</strong> ターミナルのみは会話を閉じると消え、D-1 で避けた「会話の中だけ」に戻る。「両方」は同じ情報が 2 箇所に出る。パネル案は「残件」という grill 固有の概念を samepage 本体に持ち込むので §7 の非目標の精神に反する。<br><strong>実装:</strong> export JSON から算出し、<code>data-sp-discussion</code> を付けて finalize で落とす。</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="5">5. 事実確認</h2>
+<h3 id="_1">権利関係</h3>
+<p>「独立実装が権利的に問題ないか」を確認した。<strong>問題なし。</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>確認項目</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mattpocock/skills</td>
+<td><strong>2026-08-30 に確認した時点の表記:</strong> MIT（Copyright (c) 2026 Matt Pocock）。<code>package.json</code> の <code>"license": "MIT"</code> とも一致していた。ここに写した年・表記が原文と一致するかは、転載や取り込みを行う前に原文で再確認する</td>
+</tr>
+<tr>
+<td>samepage</td>
+<td>MIT（Copyright (c) 2026 monasu0v0）。同一ライセンスなので取り込む場合も互換性の問題はない</td>
+</tr>
+<tr>
+<td>アイデアの借用</td>
+<td>著作権法の一般的な理解では、アイデアや手法そのものは著作権の保護対象ではないと考えている（法的助言ではない）。この理解のもとで、design tree / frontier / ラウンド / 事実と決定の分離は自分の言葉で書き直して使う。出典明記は義務ではなく礼儀として行う</td>
+</tr>
+<tr>
+<td>文章の転載</td>
+<td>本家の文面を実質的な分量で写す場合は MIT の条件どおり著作権表示と許諾文の同梱が必要。D-2 で独立を採ったのでこの義務は発生させない</td>
+</tr>
+<tr>
+<td>名称「grill」</td>
+<td>一般語であり登録商標は確認できなかった。ただし <code>grill-with-docs</code> に酷似した名前は派生物と誤解されうる → D-9 で <code>grill-on-samepage</code> に改名して解消</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="d-3">配布形態（D-3 の前提を崩した実験）</h3>
+<p>使い捨てのプラグインを作り、マニフェスト（Antigravity 用 <code>plugin.json</code> / Claude Code 用 <code>.claude-plugin/plugin.json</code>）と 2 つのスキルを置いてプラグイン認識を確認した。</p>
+<pre><code>sp-probe/
+  plugin.json
+  .claude-plugin/plugin.json
+  skills/probe-one/SKILL.md
+  skills/probe-two/SKILL.md
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>確認項目</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 クローン 2 スキル</td>
+<td><strong>成立する（実測）。</strong> marketplace も install ステップも不要。README の導入コマンドは 1 クローンで完結する</td>
+</tr>
+<tr>
+<td>共有スクリプト</td>
+<td><code>SKILL.md</code> の 2 階層上（<code>../../samepage/cli.py</code>）または <code>${CLAUDE_PLUGIN_ROOT}</code> でプラグイン内のスキル間で共有するリソースを参照できる</td>
+</tr>
+<tr>
+<td>ルート SKILL.md</td>
+<td><strong>無視される（実測）。</strong> マニフェストがある状態でルートに SKILL.md を足しても <code>Skills (2)</code> のままで、<code>skills/</code> を外すと <code>Skills (0)</code> になった。両立しない</td>
+</tr>
+<tr>
+<td>移行コスト</td>
+<td>説明文（<code>description</code>）による自動起動はそのまま機能し、Antigravity でも Claude Code でも他のエージェントでも同一の <code>skills/&lt;name&gt;/SKILL.md</code> 構造で動作する</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="_2">リポジトリの統合面</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>確認項目</th>
+<th>結果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>再利用できるもの</td>
+<td><code>docs/build_readme_html.py</code> の SVG プリミティブは汎用で、<code>data-sp-node</code> と透明ヒットパスを既に出力する。ページシェル（<code>PAGE_CSS</code> / <code>build_page</code>）も再利用可能</td>
+</tr>
+<tr>
+<td>既存の非目標と衝突</td>
+<td><code>docs/design.md</code> の Non-goals に「No Markdown → HTML conversion」。<strong>ビルダーを入れるならこの記述の書き換えが必要</strong>（samepage CLI は変換しない / <code>docs/</code> のビルダーは別、と切り分ける）</td>
+</tr>
+<tr>
+<td>依存の現状</td>
+<td><code>pyproject.toml</code> は <code>dependencies = []</code>。<code>markdown</code> は未宣言で、<code>build_readme_html.py</code> が <code>try/except ImportError</code> で案内して終了する運用</td>
+</tr>
+<tr>
+<td>CI</td>
+<td>CI は <code>markdown</code> を入れず、ビルダーを一切実行せず、<code>README.html</code> の鮮度も検査しない → D-12 で解消</td>
+</tr>
+<tr>
+<td>SVG マーカー ID</td>
+<td><code>sp-arrow</code> 等が <code>id=</code> スコープなので、1 ページに 2 枚の図を置くと衝突する。ビルダーは図ごとに ID を一意化する必要がある</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="6">6. 実装計画</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>順</th>
+<th>作業</th>
+<th>根拠</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>プラグイン化。<code>plugin.json</code> / <code>.claude-plugin/plugin.json</code> を追加し、<code>SKILL.md</code> を <code>skills/samepage/</code> へ移動</td>
+<td>D-3</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ビルダー <code>docs/build_alignment_html.py</code>。記法のパース → design tree の SVG 生成、残件節の生成、<code>INDEX.md</code> の生成</td>
+<td>D-5 / D-10 / D-11 / D-13 / D-15</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>skills/grill-on-samepage/SKILL.md</code>。ラウンドの回し方、質問ピンの配置規約、確定した決定を取り消す導線、ドリフト検知、合意ゲートの手順</td>
+<td>D-2 / D-4 / D-7 / D-8</td>
+</tr>
+<tr>
+<td>4</td>
+<td>CI ジョブ。<code>markdown</code> を入れてビルダーを実行し、生成 HTML の鮮度を検査</td>
+<td>D-12</td>
+</tr>
+<tr>
+<td>5</td>
+<td>この文書を <code>.md</code> へ移し、ビルダーで再生成</td>
+<td>D-1 のルール 1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>ドキュメント同期。README 2 本（マルチエージェントプラグイン導入手順の記載を含む） + 生成 HTML 2 本 + <code>docs/design.md</code> + 既存 <code>SKILL.md</code></td>
+<td>D-3 / D-5 / D-9</td>
+</tr>
+</tbody>
+</table></div>
+<p>2（ビルダー）を 5（この文書の移行）より先に置いているのは、移行先の形式がビルダーの実装で決まるため。1（プラグイン化）を最初に置いているのは、以降の <code>${CLAUDE_PLUGIN_ROOT}</code> を使ったパス記述がその構成を前提にするため。6 を最後にまとめているのは、途中で README を直すと 2 度手間になるため。</p>
+<h2 id="7">7. 非目標</h2>
+<ul>
+<li>samepage 本体の JSON 契約（<code>targets[].kind</code>、<code>action</code>、<code>answers</code> 等）を変更しない。本機能は既存契約の上に乗る。</li>
+<li>Markdown → HTML 変換の<strong>汎用</strong>機能を samepage CLI に入れない。ビルダーは <code>docs/</code> 側のスクリプトとして、ALIGNMENT 文書という特定用途に限る。</li>
+<li>サーバーを立てない。<code>file://</code> で完結する。</li>
+<li>実装の自動化（合意した内容からコードを生成する）は範囲外。合意までが本機能。</li>
+</ul></article>
+</div>
+</body>
+</html>
